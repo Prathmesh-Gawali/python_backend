@@ -1,0 +1,1114 @@
+{
+  "routes": {
+    "hawk_out": {
+      "name": "Hawk/Out",
+      "type": "combo",
+      "description": "Inside receivers run out routes, outside receiver runs go route",
+      "inside_receiver": {
+        "steps": 4,
+        "cut_angle": 90,
+        "cut_direction": "toward_sideline",
+        "options": [
+          "sit_route_based_on_coverage"
+        ]
+      },
+      "outside_receiver": {
+        "release": "outside",
+        "route": "go"
+      },
+      "audio_description": [
+        "The inside receivers always have an out route consisting of running vertically four steps then making a quick sharp cut at a 90-degree angle towards the sideline running full speed out of the break.",
+        "The inner most receiver lined up closest to the line of scrimmage has the option to sit the route down once out of the break depending on the coverage of the defense.",
+        "The outside receiver always has a go route with a mandatory outside release closest to the sideline to make sure to turn the defensive backs back to the ball."
+      ]
+    },
+    "panther": {
+      "name": "Panther",
+      "type": "quick",
+      "steps": 3,
+      "cut_foot": "outside",
+      "cut_angle": "sharp",
+      "description": "Three step slant route climbing slightly up field",
+      "adjustable": true,
+      "audio_description": [
+        "Three step slant route which consists of running vertically three steps and cutting off of the outside leg at a sharp angle climbing slightly up field but can adjust based off of the defenders leverage."
+      ]
+    },
+    "run_it": {
+      "name": "Run It",
+      "type": "hitch",
+      "distance": "8-9 yards",
+      "cut_foot": "outside",
+      "cut_angle": 45,
+      "direction": "back_to_qb",
+      "te_variation": "break_outward",
+      "outside_receiver_release": "outside",
+      "audio_description": [
+        "Consists of running a hitch route.",
+        "Each wide receiver runs vertically 8-9 yards and cuts off of their outside foot coming back to the QB at a 45 degree angle.",
+        "The outside receivers have to release outside the defender in coverage.",
+        "A tight end attached to the line of scrimmage will break outward instead of inward."
+      ]
+    },
+    "slay": {
+      "name": "Slay",
+      "type": "combo",
+      "outside_receiver": {
+        "steps": 3,
+        "route": "slant",
+        "cut_foot": "outside"
+      },
+      "inside_receiver": {
+        "route": "bubble"
+      },
+      "te_variation": "flat",
+      "audio_description": [
+        "Three step slant route which consists of running vertically three steps and cutting off of the outside leg at a sharp angle climbing slightly up field by the outside receiver.",
+        "The inside wide receiver will run a bubble route which is run directly toward the sideline with a little bow backwards.",
+        "If a tight end is line up inside they will run a flat route which they take one step vertically and immediately run directly down the line of scrimmage to the sideline."
+      ]
+    },
+    "slay_deep": {
+      "name": "Slay Deep",
+      "type": "combo",
+      "outside_receiver": {
+        "steps": 5,
+        "route": "slant",
+        "cut_foot": "outside"
+      },
+      "inside_receiver": {
+        "route": "bubble"
+      },
+      "audio_description": [
+        "Slay Deep is the same concept as Slay just changing the slant route to five steps instead of three steps."
+      ]
+    },
+    "ohio": {
+      "name": "Ohio",
+      "type": "out",
+      "steps": 6,
+      "cut_foot": "inside",
+      "cut_angle": 90,
+      "description": "Out route with roll cut to sideline",
+      "coverage_adjustments": {
+        "press_man": "convert_to_go",
+        "cover_2": "convert_to_go"
+      },
+      "audio_description": [
+        "Ohio is an out route which is run by the outside most receiver.",
+        "The receiver runs vertically 6 steps cutting off of the inner most leg closest to the line of scrimmage running out to the sideline.",
+        "They roll the cut and speed cut to a 90 degree angle towards the sideline and run in a straight line.",
+        "If the defender is in press man or in cover two the route converts to a go route which is kept vertically downfield instead of breaking out."
+      ]
+    },
+    "hank": {
+      "name": "Hank",
+      "type": "curl",
+      "distance": "12 yards",
+      "initial_movement": {
+        "angle": 45,
+        "steps": 2,
+        "direction": "inward"
+      },
+      "adjustments": {
+        "close_alignment": "push_outward_2_steps"
+      },
+      "audio_description": [
+        "This is a 12 yard curl route.",
+        "The receiver burst off the line of scrimmage inward at a 45 degree angle taking two steps then pushes back vertical until they are 12 yards beyond the line of scrimmage then taking a sharp angle cutting back towards the quarterback at the top of the route.",
+        "If the receiver is lined up close to the line of scrimmage pre-snap then the receiver will push outward two steps before running vertically."
+      ]
+    },
+    "bones": {
+      "name": "Bones",
+      "type": "curl",
+      "distance": "12 yards",
+      "initial_movement": {
+        "angle": 45,
+        "steps": 2,
+        "direction": "inward"
+      },
+      "adjustments": {
+        "close_alignment": "push_outward_2_steps"
+      },
+      "audio_description": [
+        "This is a 12 yard curl route.",
+        "The receiver burst off the line of scrimmage inward at a 45 degree angle taking two steps then pushes back vertical until they are 12 yards beyond the line of scrimmage then taking a sharp angle cutting back towards the quarterback at the top of the route.",
+        "If the receiver is lined up close to the line of scrimmage pre-snap then the receiver will push outward two steps before running vertically."
+      ]
+    },
+    "hook": {
+      "name": "Hook",
+      "type": "hook",
+      "distance": "12 yards",
+      "cut_angle": "sharp",
+      "direction": "back_to_qb",
+      "audio_description": [
+        "Run vertical 12 yards then cut sharply at an angle back towards the quarterback."
+      ]
+    },
+    "hash_read": {
+      "name": "Hash Read",
+      "type": "option",
+      "steps": 7,
+      "options": [
+        "continue_vertical",
+        "cut_outside_foot",
+        "angle_toward_goal_post"
+      ],
+      "read_based_on": "safety_coverage",
+      "audio_description": [
+        "Route that is determined on how its run based upon the defensive coverage.",
+        "It consists of running vertically 7 steps on the 7th step the receiver or tight end has the option to keep running vertically or if there are two high safeties can cut off his outside foot at an angle determined by defenders leverage but primarily towards the back goal post to split between the two safeties."
+      ]
+    },
+    "option": {
+      "name": "Option",
+      "type": "option",
+      "distance": "12-14 yards",
+      "primary_for": "TE",
+      "options": [
+        "cut_in",
+        "cut_out",
+        "flat_cut",
+        "sharp_angle_back",
+        "sit_at_landmark"
+      ],
+      "read_based_on": "defensive_coverage",
+      "audio_description": [
+        "Route run primarily by tight ends.",
+        "It consists of running vertically 12-14 yards then based on the defensive coverage can be cut in or out flat cut, in or out at a sharp angle back toward the line of scrimmage, or can sit the route down at the 12-14 yard landmark."
+      ]
+    },
+    "square_in": {
+      "name": "Square In",
+      "type": "in",
+      "distance": "16 yards",
+      "cut_angle": 90,
+      "cut_foot": "outside",
+      "after_cut": "parallel_to_los",
+      "audio_description": [
+        "Run vertically 16 yards then breakdown and make a sharp 90 degree cut off of the outside foot and running flat parallel with the line of scrimmage."
+      ]
+    },
+    "drag": {
+    "name": "Drag",
+    "type": "crossing",
+    "depth": "5-6 yards",
+    "angle": "curved",
+    "direction": "middle_of_field",
+    "after_cut": "parallel_to_los",
+    "variations": {
+      "standard_drag": {
+        "initial": {
+          "angle": "curved",
+          "depth": 6,
+          "direction": "middle"
+        },
+        "break": {
+          "angle": "flat",
+          "direction": "parallel_to_los"
+        }
+      },
+  "square_in": {
+    "name": "Square In",
+    "type": "intermediate",
+    "depth": "16 yards",
+    "cut_angle": 90,
+    "cut_foot": "outside",
+    "after_cut": "parallel_to_los",
+    "variations": {
+      "standard_square_in": {
+        "vertical": {
+          "steps": 16,
+          "breakdown": true
+        },
+        "cut": {
+          "angle": 90,
+          "foot": "outside",
+          "direction": "middle"
+        },
+        "after_cut": {
+          "direction": "parallel_to_los"
+        }
+      }
+    },
+    "audio_description": [
+      "Run vertically 16 yards then breakdown and make a sharp 90 degree cut off of the outside foot and running flat parallel with the line of scrimmage."
+    ]
+  },
+      "ghost_te_adjustment": {
+        "initial": {
+          "angle": "curved",
+          "depth": 5,
+          "direction": "middle"
+        },
+        "break": {
+          "angle": "flat",
+          "direction": "parallel_to_los",
+          "adjustment": "idle_down"
+        }
+      }
+    },
+    "adjustments": {
+      "zone_coverage": "sit_in_soft_spots",
+      "coverage_read": "idle_down_opposite_side"
+    },
+    "audio_description": [
+      "Route that consists of running at a curved angle gradually gaining yardage up to 5-6 yards down field going towards the middle of the field (never out toward the sideline) then running flat parallel with the line of scrimmage.",
+      "Depending on the coverage the route can be idled down ones on the other side of the strength of the formation over the ghost tight ends alignment."
+    ]
+  },
+    "post": {
+      "name": "Post",
+      "type": "deep",
+      "variations": {
+        "9_step": {
+          "steps": 9,
+          "cut_foot": "outside",
+          "landmark": "back_goal_post",
+          "adjustable": true
+        },
+        "7_step": {
+          "steps": 7,
+          "cut_foot": "outside",
+          "landmark": "back_goal_post",
+          "adjustable": true
+        }
+      },
+      "audio_description": [
+        "9 step post -- Run vertically and on the 9th step cut off the outside foot with the primary landmark of the cut being the back goal post but the angle can be changed based upon the defender's leverage.",
+        "7 step post -- Run vertically and on the 7th step cut off the outside foot with the primary landmark of the cut being the back goal post but the angle can be changed based upon the defender's leverage."
+      ]
+    },
+    "corner": {
+      "name": "Corner",
+      "type": "deep",
+      "variations": {
+        "slot_inside": {
+          "steps": 10,
+          "cut_foot": "inside",
+          "angle": "high",
+          "adjustable": true
+        },
+        "4_6_corner": {
+          "initial": {
+            "angle": 45,
+            "steps": 4,
+            "release": "inside"
+          },
+          "vertical": {
+            "steps": 6
+          },
+          "cut": {
+            "foot": "inside",
+            "angle": "high",
+            "adjustable": true
+          }
+        },
+        "terp_corner": {
+          "initial": {
+            "angle": 45,
+            "steps": 4,
+            "release": "inside"
+          },
+          "vertical": {
+            "steps": 4
+          },
+          "cut": {
+            "foot": "inside",
+            "angle": "high",
+            "adjustable": true
+          }
+        }
+      },
+      "audio_description": [
+        "When run in the slot or inside - Run vertical 10 steps then cut out off the inside foot at a high angle but still climbing vertically downfield (the angle can change based upon the defenders leverage whether to cut higher or flatter).",
+        "4/6 Corner -- Run off the ball at a 45 degree angle taking an inside release 4 steps then cut off of the inside foot to run vertically downfield for 6 steps then cut out off the inside foot at a high angle but still climbing vertically downfield (the angle can change based upon the defenders leverage whether to cut higher or flatter).",
+        "Terp Corner - Run off the ball at a 45 degree angle taking an inside release 4 steps then cut off of the inside foot to run vertically downfield for 4 steps then cut out off the inside foot at a high angle but still climbing vertically downfield (the angle can change based upon the defenders leverage whether to cut higher or flatter)."
+      ]
+    },
+    "cab": {
+      "name": "Cab",
+      "type": "break",
+      "depth": "14 yards",
+      "cut_type": "speed_cut",
+      "after_break": "flat",
+      "audio_description": [
+        "The route consists of running vertically and speed cutting coming flat out of the break at a depth of 14 yards."
+      ]
+    },
+    "flare": {
+      "name": "Flare",
+      "type": "backfield",
+      "primary_for": [
+        "RB",
+        "FB"
+      ],
+      "direction": "toward_sideline",
+      "depth": "behind_los",
+      "movement": "parallel_to_los",
+      "additional": "slight_bubble_back",
+      "audio_description": [
+        "Run by a RB or FB out of the backfield.",
+        "Consists of running towards the sideline parallel but behind the line of scrimmage with a slight bubble back."
+      ]
+    },
+    "flat": {
+      "name": "Flat",
+      "type": "checkdown",
+      "depth": "2-3 yards",
+      "direction": "designated_flat_area",
+      "audio_description": [
+        "Run at an angle towards the designated flat area of the field at a depth of 2 to 3 yards as a checkdown option for the quarterback."
+      ]
+    },
+    "spot_rb": {
+      "name": "Spot (RB)",
+      "type": "spot",
+      "depth": "4-5 yards",
+      "cut_foot": "inside",
+      "cut_angle": "sharp",
+      "landmark": "over_offensive_tackle",
+      "vs_man": "cut_and_continue_flat",
+      "audio_description": [
+        "Consists of running 4-5 yards down field and cutting back at a sharp angle off of the inside foot with the landmark being over the offensive tackles original alignment.",
+        "If it is vs man coverage the route can be cut at 4-5 yards and run flat out continuing to run parallel with the line of scrimmage towards the sideline."
+      ]
+    },
+    "spot_te": {
+      "name": "Spot (TE)",
+      "type": "spot",
+      "depth": "7 yards",
+      "angle": "vertical",
+      "landmark": "over_center",
+      "audio_description": [
+        "Push at an angle vertically up to 7 yards depth and sit over the offensive centers original alignment."
+      ]
+    },
+    "short": {
+      "name": "Short",
+      "type": "break",
+      "depth": "6 yards",
+      "cut_direction": "back_and_out",
+      "cut_foot": "inside",
+      "vs_man": "cut_and_continue_flat",
+      "audio_description": [
+        "Consists of running 6 yards down field and cutting back and out at a sharp angle off of the inside foot.",
+        "If it is vs man coverage the route can be cut at 6 yards and run flat out continuing to run parallel with the line of scrimmage towards the sideline."
+      ]
+    },
+    "whip": {
+      "name": "Whip",
+      "type": "break",
+      "depth": "5-6 yards",
+      "initial_movement": "like_drag",
+      "cut_direction": "back_out_flat",
+      "after_cut": "parallel_to_los_toward_sideline",
+      "audio_description": [
+        "A whip route starts off the exact same way that a drag route would be run by running in gradually climbing to a depth of 5-6 yards then cutting back out in flat and running parallel to the line of scrimmage towards the sideline."
+      ]
+    },
+    "pivot": {
+      "name": "Pivot",
+      "type": "break",
+      "depth": "5-6 yards",
+      "initial_movement": "like_drag",
+      "action_at_depth": "pause_then_continue",
+      "landmark": "over_guard_alignment",
+      "audio_description": [
+        "Run identically as a drag route but once at 5-6 yards and roughly over the offensive guard's alignment idle down as if the route is going to be sat down or going to cut back out on a whip route but then continue to run after the pause."
+      ]
+    },
+    "leak": {
+      "name": "Leak",
+      "type": "backfield",
+      "primary_for": [
+        "RB",
+        "FB"
+      ],
+      "depth": "4-5 yards",
+      "cut_angle": 90,
+      "after_cut": "parallel_to_los",
+      "audio_description": [
+        "Primarily run by a running back or full back out of the backfield.",
+        "Run vertically downfield to roughly 4-5 yards downfield then cut in at a 90 degree angle running parallel with the line of scrimmage."
+      ]
+    },
+    "go": {
+      "name": "Go",
+      "type": "vertical",
+      "direction": "straight",
+      "audio_description": [
+        "Run vertically down the field in a straight line."
+      ]
+    },
+    "seam": {
+      "name": "Seam",
+      "type": "vertical",
+      "direction": "straight",
+      "audio_description": [
+        "Run vertically down the field in a straight line."
+      ]
+    },
+    "comeback": {
+      "name": "Comeback",
+      "type": "comeback",
+      "distance": "16 yards",
+      "cut_angle": "sharp",
+      "direction": "back_toward_sideline",
+      "coverage_adjustments": {
+        "cover_2": "convert_to_go"
+      },
+      "audio_description": [
+        "Run vertical 16 yards then at a sharp angle break out retreating back towards the sideline.",
+        "If the defensive coverage is cover 2 convert the route to a go route and keep running vertical."
+      ]
+    },
+    "pin_comeback": {
+      "name": "Pin Comeback",
+      "type": "comeback",
+      "distance": "20 yards",
+      "cut_angle": "sharp",
+      "direction": "back_toward_sideline",
+      "audio_description": [
+        "Run vertical 20 yards then at a sharp angle break out retreating back towards the sideline."
+      ]
+    },
+    "cut": {
+      "name": "Cut",
+      "type": "comeback",
+      "distance": "12 yards",
+      "cut_angle": "sharp",
+      "direction": "back_toward_sideline",
+      "coverage_adjustments": {
+        "cover_2": "convert_to_go"
+      },
+      "audio_description": [
+        "Run vertical 12 yards then at a sharp angle break out retreating back towards the sideline.",
+        "If the defensive coverage is cover 2 convert the route to a go route and keep running vertical."
+      ]
+    },
+    "hitch": {
+      "name": "Hitch",
+      "type": "hitch",
+      "distance": "6 yards",
+      "cut_foot": "outside",
+      "cut_angle": 45,
+      "direction": "back_to_qb",
+      "vs_press_man": "convert_to_whip",
+      "audio_description": [
+        "Runs vertically 6 yards and cut off of the outside foot coming back to the QB at a 45 degree angle.",
+        "If the route is vs press man coverage the route can be converted to a whip route."
+      ]
+    },
+    "flag": {
+      "name": "Flag",
+      "type": "break",
+      "steps": 8,
+      "cut_foot": "inside",
+      "cut_angle": "high",
+      "direction": "out",
+      "adjustable": true,
+      "special_cases": {
+        "smash_concept": "can_sit_after_break"
+      },
+      "audio_description": [
+        "Run vertically 8 steps then cut at a high angle out off of the inside foot continuing to climb up field.",
+        "The angle of the route can be adjusted based upon the defenders leverage.",
+        "If run on the smash concept the route can be sat down after the break of the route if there is a high corner."
+      ]
+    },
+    "denver": {
+      "name": "Denver",
+      "type": "break",
+      "initial_movement": "like_flag",
+      "after_break": "turn_vertical_back_upfield",
+      "audio_description": [
+        "Run the same way as a flag route but once the receiver is multiple steps out of the break the route is turned vertically back up the field."
+      ]
+    },
+    "boot": {
+      "name": "Boot",
+      "type": "crossing",
+      "depth": "8-10 yards",
+      "angle": "curved",
+      "direction": "across_formation",
+      "after_cut": "parallel_to_los",
+      "audio_description": [
+        "Route that consists of running at a curved angle gradually gaining yardage up to 8-10 yards down field going across the strength of the formation called and running flat/parallel with the line of scrimmage."
+      ]
+    },
+    "hide": {
+      "name": "Hide",
+      "type": "break",
+      "depth": "6 yards",
+      "action_at_depth": "pause_then_burst_in",
+      "cut_angle": 90,
+      "after_cut": "parallel_to_los",
+      "audio_description": [
+        "Run vertically 6 yards up field then pause at the top of the route almost as if the receiver is going to run a hitch route then burst in running at a 90 degree angle parallel with the line of scrimmage."
+      ]
+    },
+    "cross": {
+      "name": "Cross",
+      "type": "crossing",
+      "depth": "6 yards",
+      "cut_foot": "outside",
+      "cut_angle": 90,
+      "after_cut": "parallel_to_los",
+      "audio_description": [
+        "Run vertically 6 yards up field then cutting in off of the outside leg running at a 90 degree angle parallel with the line of scrimmage."
+      ]
+    },
+    "snag": {
+      "name": "Snag",
+      "type": "break",
+      "initial_movement": {
+        "distance": "1 yard",
+        "direction": "vertical"
+      },
+      "cut": {
+        "angle": "in",
+        "target_depth": "6 yards"
+      },
+      "action_at_depth": "sit_down",
+      "landmark": "over_inside_receivers_original_alignment",
+      "audio_description": [
+        "Push up the field vertically one yard then cut in at an angle at which you would arrive 6 yards downfield to sit down at over the landmark of the inside receivers original alignment."
+      ]
+    },
+    "snag_up": {
+      "name": "Snag-Up",
+      "type": "break",
+      "initial_movement": {
+        "distance": "1 yard",
+        "direction": "vertical"
+      },
+      "cut": {
+        "angle": "in",
+        "target_depth": "6 yards"
+      },
+      "action_at_depth": "pause_then_burst_vertical",
+      "adjustments": {
+        "2_high_safeties": "cut_more_vertical",
+        "single_high": "cut_more_flat"
+      },
+      "audio_description": [
+        "Push up the field vertically one yard then cut in at an angle at which you would arrive 6 yards downfield to sit down at over the landmark of the inside receivers original alignment after a brief pause burst vertically up the middle of the field cutting more vertically vs 2 high safeties and more flat across the field if it is single high."
+      ]
+    },
+    "cross_n_go": {
+      "name": "Cross N Go",
+      "type": "combo",
+      "depth": "6 yards",
+      "cut_foot": "outside",
+      "cut_angle": 90,
+      "after_cut": "immediately_go_vertical",
+      "audio_description": [
+        "Run vertically 6 yards up field then cutting in off of the outside leg running at a 90 degree angle then immediately cut back up the field vertically running a go route."
+      ]
+    },
+    "stick": {
+      "name": "Stick",
+      "type": "break",
+      "similar_to": "7_step_post",
+      "difference": "steps_widened_outward",
+      "audio_description": [
+        "A stick route is run very similarly to a 7 step post but prior to the cut instead of running vertically 7 steps the 7 steps are not vertical they are widened a bit at an outward angle."
+      ]
+    },
+    "out_n_go": {
+      "name": "Out N Go",
+      "type": "combo",
+      "steps": 4,
+      "cut_type": "speed_cut",
+      "cut_angle": 90,
+      "direction": "outward",
+      "after_cut": "turn_vertical_go",
+      "audio_description": [
+        "Consists of running vertical 4 steps then speed cut outward at a 90 degree angle then turn up the field vertically running a go route."
+      ]
+    },
+    "taxi": {
+      "name": "Taxi",
+      "type": "slant",
+      "steps": 5,
+      "cut_foot": "outside",
+      "cut_angle": "sharp",
+      "primary_for": "X_receiver",
+      "audio_description": [
+        "Five step slant route which consists of running vertically five steps and cutting off of the outside leg at a sharp angle climbing slightly up field (run and called primarily for the x wide receiver)."
+      ]
+    },
+    "yogi": {
+      "name": "Yogi",
+      "type": "comeback",
+      "distance": "8-10 yards",
+      "cut_angle": "sharp",
+      "direction": "back_toward_los",
+      "audio_description": [
+        "Run vertically 8-10 yards then cut out at a sharp angle coming back towards the line of scrimmage."
+      ]
+    },
+    "over": {
+      "name": "Over",
+      "type": "crossing",
+      "depth": "18-22 yards",
+      "direction": "across_field",
+      "target": "other_side_numbers",
+      "audio_description": [
+        "Push up and across the field gradually until reaching 18-22 yards downfield and across the to the other side of the fields numbers."
+      ]
+    },
+    "indy": {
+      "name": "Indy",
+      "type": "double_move",
+      "initial_movement": "like_over",
+      "after_movement": "turn_back_to_original_side",
+      "audio_description": [
+        "Run to look as if they are running an over route.",
+        "Run the same way as an over route but as the receiver is gradually climbing across the field they turn back out to the same side of the field they were originally aligned."
+      ]
+    },
+    "stem_curl": {
+      "name": "Stem Curl",
+      "type": "curl",
+      "variations": {
+        "dip_16": {
+          "distance": "16 yards",
+          "initial_movement": {
+            "angle": 45,
+            "steps": 2,
+            "direction": "inward"
+          }
+        },
+        "hank_12": {
+          "distance": "12 yards",
+          "initial_movement": {
+            "angle": 45,
+            "steps": 2,
+            "direction": "inward"
+          }
+        }
+      },
+      "audio_description": [
+        "Dip (16 Yards) - The receiver burst off the line of scrimmage inward at a 45 degree angle taking two steps then pushes back vertical until they are 16 yards beyond the line of scrimmage then taking a sharp angle cutting back towards the quarterback at the top of the route.",
+        "Hank (12 Yards) - The receiver burst off the line of scrimmage inward at a 45 degree angle taking two steps then pushes back vertical until they are 12 yards beyond the line of scrimmage then taking a sharp angle cutting back towards the quarterback at the top of the route."
+      ]
+    },
+    "dawg": {
+      "name": "Dawg",
+      "type": "post",
+      "variation": "based_on_inside_receiver",
+      "cut_angle": "depends_on_safety_coverage",
+      "adjustments": {
+        "2_high_safeties": "more_vertical",
+        "single_high": "flatter"
+      },
+      "audio_description": [
+        "Is a form of a post route that is run based upon the inside wide receiver but cutting off of their backside and the angle of the cut depends on the defenders leverage by being kept more vertical up through the middle of the field vs 2 high safeties and flatter versus a single high safety."
+      ]
+    },
+    "in": {
+      "name": "In",
+      "type": "in",
+      "depth": "5-6 yards",
+      "cut_foot": "outside",
+      "cut_angle": 90,
+      "after_cut": "parallel_to_los",
+      "audio_description": [
+        "Run vertically 5-6 yards up field then cutting in off of the outside leg running at a 90 degree angle parallel with the line of scrimmage."
+      ]
+    },
+    "caboose": {
+      "name": "Caboose",
+      "type": "break",
+      "depth": "6 yards",
+      "action_at_depth": "pause_then_burst_in",
+      "cut_angle": 90,
+      "after_cut": "parallel_to_los",
+      "vs_wall_off": "convert_to_whip",
+      "audio_description": [
+        "Run vertically 6 yards up field then pause at the top of the route almost as if the receiver is going to run a hitch route then burst in running at a 90 degree angle parallel with the line of scrimmage.",
+        "If the defender walls off the inside the receiver has the option to convert the route as if they are running a whip route."
+      ]
+    },
+    "dig": {
+      "name": "Dig",
+      "type": "in",
+      "distance": "12 yards",
+      "cut_angle": 90,
+      "cut_foot": "outside",
+      "after_cut": "parallel_to_los",
+      "audio_description": [
+        "Run vertically 12 yards then breakdown and make a sharp 90 degree cut off of the outside foot and running flat / parallel with the line of scrimmage."
+      ]
+    },
+    "niner": {
+      "name": "Niner",
+      "type": "quick",
+      "steps": 1,
+      "cut_foot": "outside",
+      "after_cut": "gradual_climb",
+      "target": "through_defensive_lineman_legs",
+      "audio_description": [
+        "Take one step vertically then cut off of the outside foot and gradually climb through the legs landmark of defensive lineman's pre-snap."
+      ]
+    },
+    "angle": {
+      "name": "Angle (WR)",
+      "type": "break",
+      "similar_to": "whip",
+      "direction": "opposite",
+      "depth": "5-6 yards",
+      "after_cut": "flat_and_in_parallel_to_los",
+      "audio_description": [
+        "Run like a whip route but in the opposite direction.",
+        "Run up and out gradually climbing to 5-6 yards depth then cut back flat and in running parallel with the line of scrimmage."
+      ]
+    },
+    "rail": {
+      "name": "Rail",
+      "type": "combo",
+      "initial_movement": "like_flat",
+      "at_numbers": "turn_vertical_go",
+      "audio_description": [
+        "Run as if the route is a flat route then at the numbers turn up field vertically as if running a go route."
+      ]
+    },
+    "mesh": {
+      "name": "Mesh",
+      "type": "crossing",
+      "depth": "8-10 yards",
+      "angle": "curved",
+      "direction": "across_formation",
+      "after_cut": "parallel_to_los",
+      "audio_description": [
+        "Route that consists of running at a curved angle gradually gaining yardage up to 8-10 yards down field going across the strength of the formation called and running flat/parallel with the line of scrimmage."
+      ]
+    },
+    "china": {
+      "name": "China",
+      "type": "fade",
+      "steps": 3,
+      "action": "step_on_defenders_toes",
+      "after_steps": "fade_out",
+      "landmark": "bottom_of_numbers",
+      "vs_cover_3": "convert_to_comeback",
+      "audio_description": [
+        "Also can be called a fade route.",
+        "The receiver drives off of the ball vertically three steps (stepping on the defenders toes) then fading out towards the sideline while still pushing up field with the landmark with being the bottom of the numbers.",
+        "If vs cover 3 the route can be turned into a comeback."
+      ]
+    },
+    "short_hitch": {
+      "name": "Short Hitch",
+      "type": "hitch",
+      "steps": 3,
+      "cut_angle": "sharp",
+      "direction": "back_to_qb",
+      "vs_press": "convert_to_whip",
+      "audio_description": [
+        "Push up 3 short steps and come back at a sharp angle towards the QB.",
+        "If the defender is playing press convert the route to a whip route."
+      ]
+    },
+    "yukon": {
+      "name": "Yukon",
+      "type": "break",
+      "distance": "12 yards",
+      "cut_foot": "inside",
+      "cut_angle": "high",
+      "direction": "out",
+      "adjustable": true,
+      "audio_description": [
+        "Run vertically 12 yards then cut at a high angle out off of the inside foot continuing to climb up field.",
+        "The angle of the route can be adjusted based upon the defender's leverage."
+      ]
+    },
+    "slop": {
+      "name": "Slop",
+      "type": "option",
+      "distance": "6_yards_or_2_past_marker",
+      "options": [
+        "break_out_flat",
+        "break_in_flat",
+        "sit_versus_zone"
+      ],
+      "read_based_on": "defenders_leverage",
+      "audio_description": [
+        "Run 6 yards vertically or 2 yards past the designated yard marker for a first down or 2 yards past the goal line then the receiver has the option to break out flat dependent upon the defenders leverage, break in flat dependent upon the defenders leverage, or sit the route down versus zone coverage."
+      ]
+    },
+    "pressure": {
+      "name": "Pressure",
+      "type": "break",
+      "depth": "8 yards",
+      "cut_foot": "inside",
+      "cut_direction": "back_and_out",
+      "cut_angle": "sharp",
+      "vs_press": "inside_release",
+      "audio_description": [
+        "Push up vertically 8 yards then cutting off of the inside foot back and out at a sharp angle (the receiver must take an inside release vs press coverage)."
+      ]
+    },
+    "win": {
+      "name": "Win",
+      "type": "break",
+      "depth": "14 yards",
+      "cut_type": "speed_cut",
+      "after_break": "flat",
+      "audio_description": [
+        "The route consists of running vertically and speed cutting coming flat out of the break at a depth of 14 yards."
+      ]
+    },
+    "leopard": {
+      "name": "Leopard",
+      "type": "double_move",
+      "depth": "10 yards",
+      "initial_action": "like_curl",
+      "after_action": "break_like_flag_or_corner",
+      "audio_description": [
+        "Run vertically to a depth of 10 yards and turn in as if running a curl route then break up on the same angle as if running a flag or corner route."
+      ]
+    },
+    "drag_up": {
+      "name": "Drag Up",
+      "type": "combo",
+      "steps": {
+        "angle_steps": 3,
+        "flat_steps": 3
+      },
+      "after_steps": "push_vertical_at_angle",
+      "target": "split_two_high_safeties",
+      "audio_description": [
+        "Push up and in at an angle 3 steps then flatten out for 3 steps before pushing back vertically up the field at an angle as if splitting two high safeties."
+      ]
+    },
+    "jacket": {
+      "name": "Jacket",
+      "type": "double_move",
+      "depth": "8-10 yards",
+      "initial_action": "like_curl_breakdown",
+      "after_action": "break_like_post",
+      "read_based_on": "safety_leverage",
+      "audio_description": [
+        "Run vertically to roughly 8-10 yards then idle down as if to break down to run a curl route then break off at an angle such as a post route and dependent upon the safeties leverage but cutting off the backside of the flag route that is being run inside."
+      ]
+    },
+    "sail": {
+      "name": "Sail",
+      "type": "break",
+      "steps": 8,
+      "cut_type": "speed_cut",
+      "cut_angle": 90,
+      "audio_description": [
+        "Run 8 steps vertically then speed cut out at a 90-degree angle."
+      ]
+    },
+    "shimmy": {
+      "name": "Shimmy",
+      "type": "double_move",
+      "steps": 5,
+      "initial_cut": "like_slant",
+      "after_cut": {
+        "steps": 3,
+        "action": "break_down_and_cut_out"
+      },
+      "audio_description": [
+        "Run vertically 5 steps then cut off of the outside foot as if running a slant route taking three steps at an angle then breaking down and cutting out back towards the sideline."
+      ]
+    },
+    "shake": {
+      "name": "Shake",
+      "type": "double_move",
+      "steps": 7,
+      "initial_cut": "like_post",
+      "after_cut": {
+        "steps": 3,
+        "action": "break_down_and_cut_out"
+      },
+      "audio_description": [
+        "Run vertically 7 steps then cut off of the outside foot as if running a post route taking three steps at an angle then breaking down and cutting out back towards the sideline."
+      ]
+    },
+    "sit": {
+      "name": "Sit",
+      "type": "double_move",
+      "steps": 8,
+      "initial_cut": "like_flag",
+      "after_cut": {
+        "steps": 3,
+        "action": "turn_in_and_curl"
+      },
+      "audio_description": [
+        "Run vertically 8 steps then cutting off of the inside leg as if running a flag route run three steps then turn back inside and cut as if running a curl route."
+      ]
+    },
+    "snake": {
+      "name": "Snake",
+      "type": "double_move",
+      "steps": 6,
+      "initial_cut": {
+        "foot": "inside",
+        "angle": "high"
+      },
+      "after_cut": {
+        "steps": 3,
+        "action": "cut_back_in_like_post"
+      },
+      "audio_description": [
+        "Run vertically 6 steps then cut off of the inside leg at a high angle taking three steps then cutting back in at the angle when running a post route."
+      ]
+    },
+    "shallow": {
+      "name": "Shallow",
+      "type": "crossing",
+      "depth": "5-6 yards",
+      "angle": "curved",
+      "direction": "middle_of_field",
+      "after_cut": "parallel_to_los",
+      "adjustments": {
+        "zone_coverage": "sit_in_soft_spots"
+      },
+      "audio_description": [
+        "Route that consists of running at a curved angle gradually gaining yardage up to 5-6 yards down field going towards the middle of the field (never out toward the sideline) then running flat parallel with the line of scrimmage.",
+        "Depending on the coverage the route can be idled down ones on the other side of the strength of the formation over the ghost tight ends alignment."
+      ]
+    },
+    "crease": {
+      "name": "Crease",
+      "type": "in",
+      "distance": "16 yards",
+      "cut_angle": 90,
+      "cut_foot": "outside",
+      "after_cut": "parallel_to_los",
+      "audio_description": [
+        "Run vertically 16 yards then breakdown and make a sharp 90 degree cut off of the outside foot and running flat parallel with the line of scrimmage."
+      ]
+    },
+    "pylon": {
+      "name": "Pylon",
+      "type": "comeback",
+      "distance": "8_yards_min_or_3_past_marker",
+      "cut_foot": "inside",
+      "cut_angle": "sharp",
+      "direction": "back_toward_sideline",
+      "audio_description": [
+        "Run vertically to a minimum of 8 yards or 3 yards passed the line to gain marker then cut out off of the inside leg at a sharp angle retreating back towards the sideline."
+      ]
+    }
+  },
+  "route_categories": {
+    "quick": [
+      "panther",
+      "niner",
+      "short_hitch"
+    ],
+    "break": [
+      "hook",
+      "option",
+      "square_in",
+      "short",
+      "whip",
+      "pivot",
+      "comeback",
+      "pin_comeback",
+      "cut",
+      "hitch",
+      "flag",
+      "hide",
+      "cross",
+      "snag",
+      "snag_up",
+      "sail",
+      "crease",
+      "cab",
+      "win",
+      "yukon",
+      "pressure",
+      "angle",
+      "stick",
+      "caboose"
+    ],
+    "vertical": [
+      "go",
+      "seam"
+    ],
+    "crossing": [
+      "drag",
+      "boot",
+      "mesh",
+      "shallow",
+      "over"
+    ],
+    "combo": [
+      "hawk_out",
+      "slay",
+      "slay_deep",
+      "cross_n_go",
+      "rail",
+      "out_n_go",
+      "drag_up",
+      "run_it"
+    ],
+    "backfield": [
+      "flare",
+      "leak"
+    ],
+    "checkdown": [
+      "flat"
+    ],
+    "spot": [
+      "spot_rb",
+      "spot_te"
+    ],
+    "double_move": [
+      "indy",
+      "denver",
+      "leopard",
+      "jacket",
+      "shimmy",
+      "shake",
+      "sit",
+      "snake"
+    ],
+    "option": [
+      "hash_read",
+      "slop"
+    ],
+    "fade": [
+      "china"
+    ],
+    "curl": [
+      "hank",
+      "bones",
+      "stem_curl"
+    ],
+    "slant": [
+      "taxi"
+    ],
+    "deep": [
+      "post",
+      "corner",
+      "dawg"
+    ],
+    "comeback": [
+      "comeback",
+      "pin_comeback",
+      "cut",
+      "yogi",
+      "pylon"
+    ],
+    "in": [
+      "square_in",
+      "dig",
+      "in",
+      "crease"
+    ],
+    "out": [
+      "ohio"
+    ]
+  }
+}

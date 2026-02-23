@@ -1,0 +1,69 @@
+{
+  "segments": [
+    {
+      "name": "formation_intro",
+      "text": "The offense lines up in the 58/59 Under alignment for a Pass Protection play. This is a 2 wide receiver, 1 tight end set with both a running back and fullback in the backfield. Formation strength is to the left. ",
+      "duration": 14.96,
+      "original_audio_duration": 14.96
+    },
+    {
+      "name": "snap",
+      "text": "The center delivers a clean snap to the quarterback to initiate the pass protection play.",
+      "duration": 5.68,
+      "original_audio_duration": 5.68
+    },
+    {
+      "name": "protection",
+      "text": "The offensive line executes the protection scheme \u2014 each lineman and the TE takes their assigned defender. ",
+      "duration": 6.61,
+      "original_audio_duration": 6.61
+    },
+    {
+      "name": "te_route",
+      "text": "The tight end initially executes a reach block on the strong edge to seal the outside. If the initial defender is accounted for, the TE can release into an intermediate seam/vertical as a secondary passing option.",
+      "duration": 14.24,
+      "route_type": "reach_block",
+      "original_audio_duration": 14.25
+    },
+    {
+      "name": "fb_route",
+      "text": "The fullback performs a protection check \u2014 identifying any delayed blitzers, engaging immediate threats, then settling into the flat as a safety-valve option if the QB needs a quick outlet.",
+      "duration": 12.7,
+      "route_type": "protection",
+      "original_audio_duration": 12.72
+    },
+    {
+      "name": "wr_x_route",
+      "text": "Wide receiver X runs a vertical stem (deep route) to stretch the defense and act as the primary downfield read. His vertical threat pulls safety attention and creates space underneath for other routes.",
+      "duration": 13.29,
+      "route_type": "go_route",
+      "original_audio_duration": 13.29
+    },
+    {
+      "name": "wr_z_route",
+      "text": "Wide receiver Z runs an intermediate dig/crossing route, working to the soft spot in zone coverage at about 12\u201315 yards and serving as the secondary primary passing option.",
+      "duration": 12.01,
+      "route_type": "dig_route",
+      "original_audio_duration": 12.01
+    },
+    {
+      "name": "rb_route",
+      "text": "The running back executes a protection assignment \u2014 chip or pick up a blitz, then settle into the flat as the primary checkdown option to provide the QB a safe outlet.",
+      "duration": 11.07,
+      "route_type": "protection",
+      "original_audio_duration": 11.07
+    },
+    {
+      "name": "qb_dropback",
+      "text": "The quarterback takes a short drop and sets in the pocket, scanning his progression while trusting the protection. He times his throws to the primary vertical and intermediate reads.",
+      "duration": 11.03,
+      "original_audio_duration": 11.03
+    },
+    {
+      "name": "passing_primary",
+      "text": "The primary reads are the two outside receivers \u2014 first WR X on the deep vertical, then WR Z on the intermediate dig. If either is open the QB takes the shot; if covered he looks to the running back or fullback in the flat as a quick checkdown. The protection scheme is designed to prioritize giving time for these reads.",
+      "duration": 22.23,
+      "original_audio_duration": 22.23
+    }
+  ]
+}

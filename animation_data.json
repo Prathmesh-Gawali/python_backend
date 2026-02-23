@@ -1,0 +1,466 @@
+{
+  "formation": {
+    "name": "58/59 Under ",
+    "play_name": "Pass Protection",
+    "description": "2 WR, 1 TE, 1 RB 1 FB | Strength : Left",
+    "positions": {
+      "qb": {
+        "x": 0,
+        "y": -11.428537170263795,
+        "color": "#B85300",
+        "label": "QB",
+        "display_label": "CM"
+      },
+      "rb": {
+        "x": 0,
+        "y": -30.714268585131904,
+        "color": "#B85300",
+        "label": "RB",
+        "display_label": "TH"
+      },
+      "fb": {
+        "x": 0,
+        "y": -20.71426858513189,
+        "color": "#B85300",
+        "label": "FB",
+        "display_label": "JB"
+      },
+      "te": {
+        "x": 18.181818181818173,
+        "y": -1.5,
+        "color": "#B85300",
+        "label": "TE",
+        "display_label": "CH"
+      },
+      "wr_x": {
+        "x": 31.818181818181827,
+        "y": -5.71426858513189,
+        "color": "#B85300",
+        "label": "WR",
+        "display_label": "LW"
+      },
+      "wr_z": {
+        "x": -31.961487603305784,
+        "y": -13.795083932853714,
+        "color": "#B85300",
+        "label": "WR",
+        "display_label": "BD"
+      },
+      "ol": [
+        {
+          "x": -10.909090909090907,
+          "y": -1.5,
+          "color": "#B85300",
+          "label": "LT",
+          "display_label": "JT"
+        },
+        {
+          "x": -5.454545454545453,
+          "y": -1.5,
+          "color": "#B85300",
+          "label": "LG",
+          "display_label": "RC"
+        },
+        {
+          "x": 0,
+          "y": -1.5,
+          "color": "#B85300",
+          "label": "C",
+          "display_label": "BH"
+        },
+        {
+          "x": 5.454545454545453,
+          "y": -1.5,
+          "color": "#B85300",
+          "label": "RG",
+          "display_label": "TK"
+        },
+        {
+          "x": 10.909090909090914,
+          "y": -1.5,
+          "color": "#B85300",
+          "label": "RT",
+          "display_label": "CW"
+        }
+      ]
+    }
+  },
+  "defense": {
+    "positions": {
+      "C1": {
+        "x": -31.818181818181817,
+        "y": 20,
+        "color": "#000080",
+        "label": "C",
+        "display_label": "JW3"
+      },
+      "C2": {
+        "x": 31.818181818181827,
+        "y": 20,
+        "color": "#000080",
+        "label": "C",
+        "display_label": "CB"
+      },
+      "FS": {
+        "x": -8.181818181818187,
+        "y": 32.5,
+        "color": "#000080",
+        "label": "FS",
+        "display_label": "DS"
+      },
+      "SS": {
+        "x": 13.636363636363633,
+        "y": 32.5,
+        "color": "#000080",
+        "label": "SS",
+        "display_label": "KH2"
+      },
+      "E1": {
+        "x": -13.636363636363633,
+        "y": 7.5,
+        "color": "#000080",
+        "label": "E",
+        "display_label": "TR"
+      },
+      "E2": {
+        "x": 13.636363636363633,
+        "y": 7.5,
+        "color": "#000080",
+        "label": "E",
+        "display_label": "BN"
+      },
+      "W": {
+        "x": -2.7272727272727266,
+        "y": 17.571462829736213,
+        "color": "#000080",
+        "label": "W",
+        "display_label": "WC"
+      },
+      "S": {
+        "x": 21.818181818181813,
+        "y": 7.514268585131894,
+        "color": "#000080",
+        "label": "S",
+        "display_label": "MH"
+      },
+      "M": {
+        "x": 8.18181818181818,
+        "y": 17.5,
+        "color": "#000080",
+        "label": "M",
+        "display_label": "GS"
+      },
+      "N": {
+        "x": 2.7272727272727195,
+        "y": 7.5,
+        "color": "#000080",
+        "label": "N",
+        "display_label": "LT"
+      },
+      "T": {
+        "x": -8.181818181818187,
+        "y": 7.5,
+        "color": "#000080",
+        "label": "T",
+        "display_label": "CH2"
+      }
+    }
+  },
+  "routes": {
+    "rb": {
+      "type": "protection",
+      "color": "#4ECDC4",
+      "label": "Block",
+      "steps": [
+        {
+          "up": 16,
+          "right": 9,
+          "style": "sharp"
+        }
+      ],
+      "blocking_assignment": {
+        "defenders": [
+          "SS"
+        ],
+        "draw_defender_paths": false,
+        "defender_paths": {
+          "SS": {
+            "steps": [
+              {
+                "style": "sharp"
+              }
+            ]
+          }
+        }
+      },
+      "secondary_options": []
+    },
+    "fb": {
+      "type": "protection",
+      "color": "#6a0572",
+      "label": "Block",
+      "steps": [
+        {
+          "up": 12,
+          "left": 3,
+          "style": "sharp"
+        }
+      ],
+      "blocking_assignment": {
+        "defenders": [
+          "FS",
+          "C1",
+          "W"
+        ],
+        "branch_point": {
+          "x": 0,
+          "y": 5
+        },
+        "draw_defender_paths": false,
+        "defender_paths": {
+          "FS": {
+            "steps": [
+              {
+                "down": 5,
+                "left": 19,
+                "style": "sharp"
+              }
+            ]
+          }
+        }
+      },
+      "secondary_options": []
+    },
+    "te": {
+      "type": "protection",
+      "color": "#6A0572",
+      "label": "Reach Block",
+      "steps": [
+        {
+          "up": 1,
+          "right": 3,
+          "style": "sharp"
+        },
+        {
+          "up": 1,
+          "style": "sharp"
+        }
+      ],
+      "blocking_assignment": {
+        "defenders": [
+          "S"
+        ],
+        "branch_point": {
+          "x": 0,
+          "y": 5
+        },
+        "draw_defender_paths": false,
+        "defender_paths": {
+          "S": {
+            "steps": [
+              {
+                "left": 3,
+                "style": "sharp"
+              }
+            ]
+          }
+        }
+      },
+      "secondary_options": []
+    },
+    "wr_x": {
+      "type": "route",
+      "color": "#6A0572",
+      "label": "Run Route",
+      "steps": [
+        {
+          "up": 7,
+          "style": "sharp"
+        },
+        {
+          "up": 10,
+          "left": 7,
+          "style": "sharp"
+        }
+      ],
+      "blocking_assignment": null,
+      "secondary_options": []
+    },
+    "wr_z": {
+      "type": "route",
+      "color": "#6A0572",
+      "label": "Run Route",
+      "secondary_options": [
+        {
+          "branch_point": 1,
+          "color": "#6A0572",
+          "style": "dotted",
+          "condition": "coverage",
+          "steps": [
+            {
+              "up": 1.5,
+              "right": 7.3,
+              "style": "sharp"
+            },
+            {
+              "down": 1.8,
+              "left": 0.6,
+              "style": "sharp"
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "up": 10,
+          "right": 0.7,
+          "style": "sharp"
+        },
+        {
+          "up": 7.9,
+          "right": 8.2,
+          "style": "sharp"
+        }
+      ]
+    },
+    "qb": {
+      "type": "route",
+      "color": "#B85300",
+      "label": "",
+      "steps": [
+        {
+          "down": 1,
+          "style": "sharp"
+        }
+      ],
+      "blocking_assignment": null,
+      "secondary_options": []
+    },
+    "ol_0": {
+      "type": "protection",
+      "color": "#B85300",
+      "label": "BLOCK",
+      "steps": [
+        {
+          "down": 2,
+          "right": 1,
+          "style": "sharp"
+        }
+      ],
+      "blocking_assignment": null,
+      "secondary_options": []
+    },
+    "ol_1": {
+      "type": "protection",
+      "color": "#B85300",
+      "label": " Block",
+      "steps": [
+        {
+          "down": 1,
+          "right": 1,
+          "style": "sharp"
+        }
+      ],
+      "blocking_assignment": null,
+      "secondary_options": []
+    },
+    "ol_2": {
+      "type": "protection",
+      "color": "#B85300",
+      "label": "Block",
+      "steps": [
+        {
+          "down": 1,
+          "style": "sharp"
+        }
+      ],
+      "blocking_assignment": null,
+      "secondary_options": []
+    },
+    "ol_3": {
+      "type": "protection",
+      "color": "#B85300",
+      "label": "BLOCK",
+      "steps": [
+        {
+          "down": 1,
+          "left": 1,
+          "style": "sharp"
+        }
+      ],
+      "blocking_assignment": null,
+      "secondary_options": []
+    },
+    "ol_4": {
+      "type": "protection",
+      "color": "#B85300",
+      "label": "RT Block",
+      "steps": [
+        {
+          "down": 2,
+          "left": 1,
+          "style": "sharp"
+        }
+      ],
+      "blocking_assignment": null,
+      "secondary_options": []
+    },
+    "te_t": {
+      "type": "route",
+      "color": "#FFFFFF",
+      "label": "TE_T Route",
+      "steps": [
+        {
+          "up": 5,
+          "style": "curved"
+        }
+      ],
+      "secondary_options": [],
+      "blocking_assignment": null
+    }
+  },
+  "protection": {
+    "scheme": "run_blocking",
+    "assignments": [
+      {
+        "ol_index": 0,
+        "dl_index": 0
+      },
+      {
+        "ol_index": 1,
+        "dl_index": 1
+      },
+      {
+        "ol_index": 2,
+        "dl_index": 2
+      },
+      {
+        "ol_index": 3,
+        "dl_index": 3
+      },
+      {
+        "ol_index": 4,
+        "dl_index": 4
+      }
+    ]
+  },
+  "read_progression": [],
+  "run_lanes": {
+    "primary": [
+      "wr_z",
+      "wr_x"
+    ]
+  },
+  "passing_options": {
+    "primary": [
+      "wr_x",
+      "wr_z"
+    ],
+    "checkdowns": []
+  },
+  "qb_options": {
+    "passing_primary": true,
+    "passing_checkdown": true,
+    "qb_scramble": false
+  }
+}
