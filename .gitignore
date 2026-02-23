@@ -1,19 +1,18 @@
-# Virtual environment
+# venv
 venv/
 
-# Python cache
+# python
 __pycache__/
 *.pyc
 
-# OS
+# mac
 .DS_Store
 
-# Environment variables
+# env
 .env
 
-# Entire media folder
+# Manim media folder (huge)
 media/
 
-# Avoid all partial movie files anywhere
+# ONLY ignore partial renders (NOT final videos)
 **/partial_movie_files/
-
