@@ -1,0 +1,19 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+
+# Environment variables
+.env
+
+# Entire media folder
+media/
+
+# Avoid all partial movie files anywhere
+**/partial_movie_files/
+
