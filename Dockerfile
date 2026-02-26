@@ -49,8 +49,7 @@ RUN python3.13 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN pip install --upgrade pip setuptools wheel
 
-# ─── PyTorch with CUDA 11.8 (for g4dn.xlarge T4 GPU) ──────────────────────────
-# Using highest compatible: torch 2.7.1+cu118 with matching torchvision 0.22.1+cu118 and torchaudio 2.7.1+cu118 for Python 3.13 (cp313 wheels available)
+# ─── PyTorch with CUDA 11.8 ──────────────────────────────────────────────────
 RUN pip install --no-cache-dir \
     torch==2.7.1+cu118 \
     torchvision==0.22.1+cu118 \
@@ -60,7 +59,6 @@ RUN pip install --no-cache-dir \
 # ─── Python dependencies from requirements.txt (filtered) ─────────────────────
 COPY requirements.txt /tmp/requirements.txt
 
-# Remove torch* lines (already installed) and other problematic packages
 RUN grep -v "^torch==" /tmp/requirements.txt \
     | grep -v "^torchvision==" \
     | grep -v "^torchaudio==" \
@@ -77,8 +75,8 @@ RUN grep -v "^torch==" /tmp/requirements.txt \
 RUN pip install --no-cache-dir \
     "transformers @ git+https://github.com/huggingface/transformers@24807bfcf4a21286fa2a7e728f381ddaaca7bbc7"
 
-# ─── Gunicorn ─────────────────────────────────────────────────────────────────
-RUN pip install --no-cache-dir gunicorn==23.0.0
+# ─── Gunicorn + HuggingFace Hub ──────────────────────────────────────────────
+RUN pip install --no-cache-dir gunicorn==23.0.0 huggingface_hub
 
 # ─── Application code ─────────────────────────────────────────────────────────
 WORKDIR /app
@@ -90,16 +88,25 @@ ENV PYTHON_BIN=/opt/venv/bin/python
 ENV SAM3_MODEL_PATH=/app/models/sam3
 ENV YOLO_MODEL_PATH=/app/models/player/circle_square.pt
 ENV YOLO_ALPHABET_MODEL_PATH=/app/models/player/alphabets.pt
+ENV PYTHONUNBUFFERED=1
 
 # ─── Output directories ───────────────────────────────────────────────────────
 RUN mkdir -p /app/manim_outputs \
              /app/audio_output/male \
              /app/media/videos
 
-# ─── NEW: Ensure Python output is unbuffered ─────────────────────────────────
-ENV PYTHONUNBUFFERED=1
+# ─── Download models from HuggingFace Dataset repo ───────────────────────────
+RUN python3.13 -c "\
+import os; \
+from huggingface_hub import snapshot_download; \
+snapshot_download( \
+    repo_id='prathmeshg/playbook-models', \
+    repo_type='dataset', \
+    local_dir='/app/models', \
+    token=os.environ.get('HF_TOKEN') \
+)"
 
-# ─── NEW: Gunicorn with access logs ──────────────────────────────────────────
+# ─── Expose and run ──────────────────────────────────────────────────────────
 EXPOSE 5050
 CMD ["gunicorn", \
      "--bind", "0.0.0.0:5050", \

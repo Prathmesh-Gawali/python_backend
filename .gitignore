@@ -44,3 +44,4 @@ audio_output/male/*
 animation_data.json
 audio_script.json
 .python-version
+models/
