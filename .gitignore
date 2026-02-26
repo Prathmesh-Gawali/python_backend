@@ -1,14 +1,46 @@
+# venv
 venv/
+
+# python
 __pycache__/
 *.pyc
+
+# mac
 .DS_Store
+
+# env
 .env
-media/
+
+# partial renders
 **/partial_movie_files/
+
+# media - ignore contents but keep folder structure only
+media/*
+!media/videos/
+media/videos/*
+!media/videos/animate_play_rp/
+!media/videos/animate_play_pp/
+!media/videos/animate_play_pc/
+media/videos/animate_play_rp/*
+media/videos/animate_play_pp/*
+media/videos/animate_play_pc/*
+!media/videos/animate_play_rp/1440p30/
+!media/videos/animate_play_pp/1440p30/
+!media/videos/animate_play_pc/1440p30/
+media/videos/animate_play_rp/1440p30/*
+media/videos/animate_play_pp/1440p30/*
+media/videos/animate_play_pc/1440p30/*
+
+# manim_outputs - keep folder only
 manim_outputs/*
 !manim_outputs/.gitkeep
+
+# audio_output - keep male folder only
 audio_output/*
-!audio_output/.gitkeep
+!audio_output/male/
+audio_output/male/*
+
+# misc
 animation_data.json
 audio_script.json
 .python-version
