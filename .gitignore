@@ -1,18 +1,14 @@
-# venv
 venv/
-
-# python
 __pycache__/
 *.pyc
-
-# mac
 .DS_Store
-
-# env
 .env
-
-# Manim media folder (huge)
 media/
-
-# ONLY ignore partial renders (NOT final videos)
 **/partial_movie_files/
+manim_outputs/*
+!manim_outputs/.gitkeep
+audio_output/*
+!audio_output/.gitkeep
+animation_data.json
+audio_script.json
+.python-version
