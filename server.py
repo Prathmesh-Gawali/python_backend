@@ -1,6 +1,9 @@
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import json, os, subprocess, uuid, shutil, sys
+import threading
+import queue
+import time
 
 app = Flask(__name__)
 CORS(app)
@@ -10,8 +13,8 @@ OUTPUT_DIR      = os.path.join(BASE_DIR, "manim_outputs")
 MANIM_SCRIPT    = os.path.join(BASE_DIR, "animators", "manim_pb.py")
 PIPELINE_SCRIPT = os.path.join(BASE_DIR, "parsers/pipeline.py")
 GENERATE_AUDIO_SCRIPT = os.path.join(BASE_DIR, "parsers/generate_audio.py")
-MANIM_BIN       = os.path.expanduser("~/playbook-backend/venv/bin/manim")
-PYTHON_BIN      = os.path.expanduser("~/playbook-backend/venv/bin/python")
+MANIM_BIN       = os.environ.get("MANIM_BIN", os.path.join(os.path.dirname(sys.executable), "manim"))
+PYTHON_BIN      = os.environ.get("PYTHON_BIN", sys.executable)
 
 # audio_script.json lives one level above server.py (i.e. playbook-backend/)
 AUDIO_SCRIPT_PATH = os.path.join(BASE_DIR, "audio_script.json")
@@ -160,9 +163,10 @@ def run_strategy():
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# EXISTING ENDPOINT: Receive updated audioScript from the React UI,
+# UPDATED ENDPOINT: Receive updated audioScript from the React UI,
 # write it to audio_script.json, run generate_audio.py, and return
 # the updated audioScript (with duration fields populated).
+# Now streams logs live.
 # ─────────────────────────────────────────────────────────────────────────────
 @app.route("/generate-audio", methods=["POST"])
 def generate_audio_endpoint():
@@ -175,21 +179,60 @@ def generate_audio_endpoint():
         with open(AUDIO_SCRIPT_PATH, "w") as f:
             json.dump(data, f, indent=2)
 
-        # 2. Run generate_audio.py
-        result = subprocess.run(
+        # 2. Run generate_audio.py with live streaming
+        env = os.environ.copy()
+        env["PYTHONUNBUFFERED"] = "1"   # force line‑buffered output
+
+        process = subprocess.Popen(
             [PYTHON_BIN, GENERATE_AUDIO_SCRIPT],
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,   # merge stderr into stdout
             text=True,
+            bufsize=1,
             cwd=BASE_DIR,
-            timeout=600,
+            env=env,
         )
 
-        if result.returncode != 0:
-            print("=== GENERATE_AUDIO STDERR ===")
-            print(result.stderr)
+        def reader(proc, q):
+            for line in proc.stdout:
+                q.put(line)
+            proc.wait()
+            q.put(None)
+
+        output_queue = queue.Queue()
+        thread = threading.Thread(target=reader, args=(process, output_queue))
+        thread.daemon = True
+        thread.start()
+
+        lines = []
+        start_time = time.time()
+        timeout = 600   # 10 minutes
+
+        while True:
+            try:
+                line = output_queue.get(timeout=0.5)
+                if line is None:
+                    break
+                lines.append(line)
+                print(line, end='')      # print immediately
+                sys.stdout.flush()
+            except queue.Empty:
+                if time.time() - start_time > timeout:
+                    process.terminate()
+                    try:
+                        process.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                    return jsonify({"error": "Audio generation timed out (>10 min)"}), 500
+                continue
+
+        thread.join()
+
+        if process.returncode != 0:
+            error_output = "".join(lines[-2000:])
             return jsonify({
                 "error":   "Audio generation failed",
-                "details": result.stderr[-4000:]
+                "details": error_output
             }), 500
 
         # 3. Read back the updated audio_script.json
@@ -198,15 +241,15 @@ def generate_audio_endpoint():
 
         return jsonify({"audioScript": updated_script}), 200
 
-    except subprocess.TimeoutExpired:
-        return jsonify({"error": "Audio generation timed out (>10 min)"}), 500
     except Exception as e:
         import traceback
+        print(f"[generate-audio] Exception: {e}")
+        print(traceback.format_exc())
         return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# EXISTING ENDPOINT: Analyze uploaded image through the full ML pipeline
+# UPDATED ENDPOINT: Analyze uploaded image – streams pipeline logs live
 # ─────────────────────────────────────────────────────────────────────────────
 @app.route("/analyze-image", methods=["POST"])
 def analyze_image():
@@ -229,22 +272,58 @@ def analyze_image():
         env = os.environ.copy()
         env["PIPELINE_IMAGE_PATH"] = image_path
         env["PIPELINE_OUTPUT_DIR"] = job_dir
+        env["PYTHONUNBUFFERED"] = "1"
 
-        result = subprocess.run(
+        process = subprocess.Popen(
             [PYTHON_BIN, PIPELINE_SCRIPT],
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             text=True,
+            bufsize=1,
             cwd=job_dir,
             env=env,
-            timeout=900,
         )
 
-        if result.returncode != 0:
-            print("=== PIPELINE STDERR ===")
-            print(result.stderr)
+        def reader(proc, q):
+            for line in proc.stdout:
+                q.put(line)
+            proc.wait()
+            q.put(None)
+
+        output_queue = queue.Queue()
+        thread = threading.Thread(target=reader, args=(process, output_queue))
+        thread.daemon = True
+        thread.start()
+
+        lines = []
+        start_time = time.time()
+        timeout = 3600  # 1 hour (was 900)
+
+        while True:
+            try:
+                line = output_queue.get(timeout=0.5)
+                if line is None:
+                    break
+                lines.append(line)
+                print(line, end='')
+                sys.stdout.flush()
+            except queue.Empty:
+                if time.time() - start_time > timeout:
+                    process.terminate()
+                    try:
+                        process.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                    return jsonify({"error": "Pipeline timed out (>1 hour)"}), 500  # updated message
+                continue
+
+        thread.join()
+
+        if process.returncode != 0:
+            error_output = "".join(lines[-2000:])
             return jsonify({
                 "error":   "Pipeline processing failed",
-                "details": result.stderr[-4000:]
+                "details": error_output
             }), 500
 
         script_json_path = os.path.join(job_dir, "script.json")
@@ -278,10 +357,10 @@ def analyze_image():
             "video_url": video_url,
         }), 200
 
-    except subprocess.TimeoutExpired:
-        return jsonify({"error": "Pipeline timed out (>15 min)"}), 500
     except Exception as e:
         import traceback
+        print(f"[analyze-image] Exception: {e}")
+        print(traceback.format_exc())
         return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
 
 

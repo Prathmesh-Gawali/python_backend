@@ -914,8 +914,6 @@ class AnimatePlayPC(Scene):
         for segment in path_segments:
             fade_outs.append(FadeOut(segment, run_time=0.5))
         
-        fade_outs.append(FadeOut(complete_path, run_time=0.5))
-        
         if route_end_marker:
             fade_outs.append(FadeOut(route_end_marker, run_time=0.5))
         if len(secondary_paths) > 0:

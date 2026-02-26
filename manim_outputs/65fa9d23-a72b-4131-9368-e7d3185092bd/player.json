@@ -1,0 +1,190 @@
+{
+  "players": [
+    {
+      "player_id": 0,
+      "type": "circle",
+      "bounding_box": {
+        "x1": 343,
+        "y1": 216,
+        "x2": 376,
+        "y2": 259
+      },
+      "center": {
+        "x": 359,
+        "y": 237
+      },
+      "cropped_image_path": "/Users/prathmeshgawali/playbook-backend/manim_outputs/65fa9d23-a72b-4131-9368-e7d3185092bd/circles/circle_0.png",
+      "alphabet": null,
+      "confidence": null
+    },
+    {
+      "player_id": 1,
+      "type": "circle",
+      "bounding_box": {
+        "x1": 223,
+        "y1": 214,
+        "x2": 259,
+        "y2": 259
+      },
+      "center": {
+        "x": 241,
+        "y": 236
+      },
+      "cropped_image_path": "/Users/prathmeshgawali/playbook-backend/manim_outputs/65fa9d23-a72b-4131-9368-e7d3185092bd/circles/circle_1.png",
+      "alphabet": null,
+      "confidence": null
+    },
+    {
+      "player_id": 2,
+      "type": "circle",
+      "bounding_box": {
+        "x1": 263,
+        "y1": 215,
+        "x2": 296,
+        "y2": 259
+      },
+      "center": {
+        "x": 279,
+        "y": 237
+      },
+      "cropped_image_path": "/Users/prathmeshgawali/playbook-backend/manim_outputs/65fa9d23-a72b-4131-9368-e7d3185092bd/circles/circle_2.png",
+      "alphabet": null,
+      "confidence": null
+    },
+    {
+      "player_id": 3,
+      "type": "square",
+      "bounding_box": {
+        "x1": 298,
+        "y1": 205,
+        "x2": 340,
+        "y2": 266
+      },
+      "center": {
+        "x": 319,
+        "y": 235
+      },
+      "alphabet": null,
+      "confidence": null
+    },
+    {
+      "player_id": 3,
+      "type": "circle",
+      "bounding_box": {
+        "x1": 379,
+        "y1": 216,
+        "x2": 412,
+        "y2": 259
+      },
+      "center": {
+        "x": 395,
+        "y": 237
+      },
+      "cropped_image_path": "/Users/prathmeshgawali/playbook-backend/manim_outputs/65fa9d23-a72b-4131-9368-e7d3185092bd/circles/circle_3.png",
+      "alphabet": null,
+      "confidence": null
+    },
+    {
+      "player_id": 4,
+      "type": "circle",
+      "bounding_box": {
+        "x1": 525,
+        "y1": 243,
+        "x2": 559,
+        "y2": 284
+      },
+      "center": {
+        "x": 542,
+        "y": 263
+      },
+      "cropped_image_path": "/Users/prathmeshgawali/playbook-backend/manim_outputs/65fa9d23-a72b-4131-9368-e7d3185092bd/circles/circle_4.png",
+      "alphabet": "Y",
+      "confidence": 0.8346
+    },
+    {
+      "player_id": 5,
+      "type": "circle",
+      "bounding_box": {
+        "x1": 299,
+        "y1": 321,
+        "x2": 335,
+        "y2": 365
+      },
+      "center": {
+        "x": 317,
+        "y": 343
+      },
+      "cropped_image_path": "/Users/prathmeshgawali/playbook-backend/manim_outputs/65fa9d23-a72b-4131-9368-e7d3185092bd/circles/circle_5.png",
+      "alphabet": "Q",
+      "confidence": 0.7622
+    },
+    {
+      "player_id": 6,
+      "type": "circle",
+      "bounding_box": {
+        "x1": 624,
+        "y1": 244,
+        "x2": 659,
+        "y2": 286
+      },
+      "center": {
+        "x": 641,
+        "y": 265
+      },
+      "cropped_image_path": "/Users/prathmeshgawali/playbook-backend/manim_outputs/65fa9d23-a72b-4131-9368-e7d3185092bd/circles/circle_6.png",
+      "alphabet": "Z",
+      "confidence": 0.6016
+    },
+    {
+      "player_id": 7,
+      "type": "circle",
+      "bounding_box": {
+        "x1": 84,
+        "y1": 216,
+        "x2": 121,
+        "y2": 259
+      },
+      "center": {
+        "x": 102,
+        "y": 237
+      },
+      "cropped_image_path": "/Users/prathmeshgawali/playbook-backend/manim_outputs/65fa9d23-a72b-4131-9368-e7d3185092bd/circles/circle_7.png",
+      "alphabet": "X",
+      "confidence": 0.8268
+    },
+    {
+      "player_id": 8,
+      "type": "circle",
+      "bounding_box": {
+        "x1": 421,
+        "y1": 219,
+        "x2": 455,
+        "y2": 258
+      },
+      "center": {
+        "x": 438,
+        "y": 238
+      },
+      "cropped_image_path": "/Users/prathmeshgawali/playbook-backend/manim_outputs/65fa9d23-a72b-4131-9368-e7d3185092bd/circles/circle_8.png",
+      "alphabet": "T",
+      "confidence": 0.8964
+    },
+    {
+      "player_id": 9,
+      "type": "circle",
+      "bounding_box": {
+        "x1": 221,
+        "y1": 326,
+        "x2": 257,
+        "y2": 362
+      },
+      "center": {
+        "x": 239,
+        "y": 344
+      },
+      "cropped_image_path": "/Users/prathmeshgawali/playbook-backend/manim_outputs/65fa9d23-a72b-4131-9368-e7d3185092bd/circles/circle_9.png",
+      "alphabet": "H",
+      "confidence": 0.7347
+    }
+  ]
+}

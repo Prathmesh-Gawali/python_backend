@@ -14,7 +14,7 @@ from transformers import (
 from skimage.morphology import skeletonize
 from collections import deque
 import subprocess
-
+import sys
 # ==================== NEW CONSTANTS FOR TWO-PHASE ASSOCIATION ====================
 SOLID_LINE_ASSOCIATION_DISTANCE = 25  # px - for primary routes (tight association)
 DOTTED_LINE_ASSOCIATION_DISTANCE = 40  # px - for secondary routes (looser association)
@@ -34,16 +34,29 @@ DEFAULT_COLORS = [
     (128, 0, 255),
 ]
 
-# ── Path resolution: prefer env vars injected by server.py, fall back to hardcoded defaults ──
-_DEFAULT_IMAGE_PATH  = "/Users/prathmeshgawali/sam3-demo/images/23.png"
-_DEFAULT_OUTPUT_DIR  = "/Users/prathmeshgawali/sam3-demo/outputs"
+# ── Path resolution: prefer env vars injected by server.py, fall back to dynamic paths ──
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))          # parsers/
+_BACKEND_DIR = os.path.dirname(_SCRIPT_DIR)                       # playbook-backend/
+
+_DEFAULT_IMAGE_PATH  = os.path.join(_BACKEND_DIR, "images", "23.png")
+_DEFAULT_OUTPUT_DIR  = os.path.join(_BACKEND_DIR, "outputs")
 
 IMAGE_PATH = os.environ.get("PIPELINE_IMAGE_PATH", _DEFAULT_IMAGE_PATH)
 OUTPUT_DIR = os.environ.get("PIPELINE_OUTPUT_DIR", _DEFAULT_OUTPUT_DIR)
 
-SAM3_MODEL_PATH        = "/Users/prathmeshgawali/playbook-backend/models/sam3"
-YOLO_MODEL_PATH        = "/Users/prathmeshgawali/playbook-backend/models/player/circle_square.pt"
-YOLO_ALPHABET_MODEL_PATH = "/Users/prathmeshgawali/playbook-backend/models/player/alphabets.pt"
+# ── Model paths – environment variables override, otherwise use backend-relative paths ──
+SAM3_MODEL_PATH          = os.environ.get(
+    "SAM3_MODEL_PATH",
+    os.path.join(_BACKEND_DIR, "models", "sam3")
+)
+YOLO_MODEL_PATH          = os.environ.get(
+    "YOLO_MODEL_PATH",
+    os.path.join(_BACKEND_DIR, "models", "player", "circle_square.pt")
+)
+YOLO_ALPHABET_MODEL_PATH = os.environ.get(
+    "YOLO_ALPHABET_MODEL_PATH",
+    os.path.join(_BACKEND_DIR, "models", "player", "alphabets.pt")
+)
 
 # All output files go into OUTPUT_DIR (which may be the job-specific directory)
 YOLO_OUTPUT_PATH       = os.path.join(OUTPUT_DIR, "yolo_output.png")
@@ -87,10 +100,10 @@ def load_sam3_models(model_path, device_choice=None):
       
         model = Sam3Model.from_pretrained(model_path).to(device=device, dtype=dtype)
         processor = Sam3Processor.from_pretrained(model_path)
-        print(f"✓ Loaded SAM3 model from '{model_path}' on device '{device}'")
+        print(f"✓ Loaded SAM3 model from '{model_path}' on device '{device}'", flush=True)
         return model, processor, device, dtype
     except Exception as e:
-        print(f"✗ Failed to load SAM3 models: {e}")
+        print(f"✗ Failed to load SAM3 models: {e}", flush=True)
         return None, None, None, None
 
 def save_sam3_json_compact(json_path, objects_data, points_per_line=30):
@@ -243,7 +256,7 @@ def order_line_points_geometrically(mask_binary, connection_point=None, target_p
                          for i in range(len(ordered)-1))
         
         if path_length > 2.5 * straight_dist and straight_dist > 0:
-            print(f"  Warning: Possible loop detected. Using principal axis sorting.")
+            print(f"  Warning: Possible loop detected. Using principal axis sorting.", flush=True)
             ordered = sort_by_principal_axis(points)
     
     ordered = simplify_line(ordered, target_points)
@@ -301,7 +314,7 @@ def calculate_centroid(points):
 
 def process_with_sam3(image_path, sam3_model, sam3_processor, device, text_prompt="line", line_type="line"):
     if sam3_model is None or sam3_processor is None:
-        print("SAM3 models not loaded. Skipping SAM3 processing.")
+        print("SAM3 models not loaded. Skipping SAM3 processing.", flush=True)
         return []
     pil_image = Image.open(image_path).convert("RGB")
     inputs = sam3_processor(images=pil_image, text=text_prompt, return_tensors="pt").to(device)
@@ -319,12 +332,12 @@ def process_with_sam3(image_path, sam3_model, sam3_processor, device, text_promp
     masks = results["masks"]
   
     if masks is None or len(masks) == 0:
-        print(f"No objects found for text prompt: '{text_prompt}'")
+        print(f"No objects found for text prompt: '{text_prompt}'", flush=True)
         return []
   
     all_objects_json = []
   
-    print(f"Found {len(masks)} instance(s) with SAM3 for '{text_prompt}'")
+    print(f"Found {len(masks)} instance(s) with SAM3 for '{text_prompt}'", flush=True)
   
     for i, mask in enumerate(masks):
         mask_np = mask.cpu().numpy() if torch.is_tensor(mask) else mask
@@ -337,7 +350,7 @@ def process_with_sam3(image_path, sam3_model, sam3_processor, device, text_promp
         color = DEFAULT_COLORS[i % len(DEFAULT_COLORS)]
       
         if np.sum(mask_binary) == 0:
-            print(f" {line_type.capitalize()} {i+1}: No valid pixels found")
+            print(f" {line_type.capitalize()} {i+1}: No valid pixels found", flush=True)
             continue
       
         if line_type == "arrowhead":
@@ -363,7 +376,7 @@ def process_with_sam3(image_path, sam3_model, sam3_processor, device, text_promp
             "centroid": centroid
         }
         all_objects_json.append(obj)
-        print(f" {line_type.capitalize()} {i+1}: {original_total} pixels total, {len(mask_points)} points saved to JSON")
+        print(f" {line_type.capitalize()} {i+1}: {original_total} pixels total, {len(mask_points)} points saved to JSON", flush=True)
   
     return all_objects_json
 
@@ -371,11 +384,19 @@ def detect_alphabet_in_circle(crop, alphabet_model, circle_id):
     if crop is None or crop.size == 0:
         return None
   
+    # Device selection: prefer CUDA, then MPS, then CPU
+    if torch.cuda.is_available():
+        _device = "cuda"
+    elif torch.backends.mps.is_available():
+        _device = "mps"
+    else:
+        _device = "cpu"
+
     results = alphabet_model(
         crop,
         conf=0.3,
         iou=0.5,
-        device="mps" if torch.backends.mps.is_available() else "cpu",
+        device=_device,
         verbose=False
     )
   
@@ -397,10 +418,10 @@ def detect_alphabet_in_circle(crop, alphabet_model, circle_id):
   
     if detected_alphabets:
         best_detection = max(detected_alphabets, key=lambda x: x["confidence"])
-        print(f" Circle {circle_id}: Detected '{best_detection['class']}' (conf: {best_detection['confidence']:.2f})")
+        print(f" Circle {circle_id}: Detected '{best_detection['class']}' (conf: {best_detection['confidence']:.2f})", flush=True)
         return best_detection
     else:
-        print(f" Circle {circle_id}: No alphabet detected")
+        print(f" Circle {circle_id}: No alphabet detected", flush=True)
         return None
 
 def is_offensive_line_pattern(text):
@@ -447,13 +468,13 @@ def associate_solid_lines_to_players(player_json_path, sam3_json_path, max_dista
     Phase 1: Associate only solid lines (primary routes) to players
     """
     if not os.path.exists(player_json_path):
-        print(f"Player JSON not found: {player_json_path}")
+        print(f"Player JSON not found: {player_json_path}", flush=True)
         return {}
   
     with open(player_json_path, 'r') as f:
         player_data = json.load(f)
     if not os.path.exists(sam3_json_path):
-        print(f"SAM3 JSON not found: {sam3_json_path}")
+        print(f"SAM3 JSON not found: {sam3_json_path}", flush=True)
         return {}
   
     with open(sam3_json_path, 'r') as f:
@@ -464,13 +485,13 @@ def associate_solid_lines_to_players(player_json_path, sam3_json_path, max_dista
     paths_dict = {path["id"]: path for path in solid_paths}
     players_with_alphabets = [p for p in players if p.get("type") == "circle" and p.get("alphabet") is not None]
   
-    print(f"\n{'='*70}")
-    print(f"PHASE 1: ASSOCIATING SOLID LINES (PRIMARY ROUTES) TO PLAYERS")
-    print(f"{'='*70}")
-    print(f"Players with alphabets: {len(players_with_alphabets)}")
-    print(f"Total solid lines: {len(solid_paths)}")
-    print(f"Max association distance: {max_distance} pixels")
-    print(f"Checking first AND last {check_points} points of each path")
+    print(f"\n{'='*70}", flush=True)
+    print(f"PHASE 1: ASSOCIATING SOLID LINES (PRIMARY ROUTES) TO PLAYERS", flush=True)
+    print(f"{'='*70}", flush=True)
+    print(f"Players with alphabets: {len(players_with_alphabets)}", flush=True)
+    print(f"Total solid lines: {len(solid_paths)}", flush=True)
+    print(f"Max association distance: {max_distance} pixels", flush=True)
+    print(f"Checking first AND last {check_points} points of each path", flush=True)
     
     player_solid_associations = {}
     solid_path_assignments = {}
@@ -483,7 +504,7 @@ def associate_solid_lines_to_players(player_json_path, sam3_json_path, max_dista
         if connection_point is None:
             continue
       
-        print(f"\nPlayer {player_id} ('{alphabet}') - Connection point: {connection_point}")
+        print(f"\nPlayer {player_id} ('{alphabet}') - Connection point: {connection_point}", flush=True)
       
         player_associations = []
         for path in solid_paths:
@@ -531,18 +552,18 @@ def associate_solid_lines_to_players(player_json_path, sam3_json_path, max_dista
                 }
                 player_associations.append(path_info)
                 solid_path_assignments[path_id] = player_id
-                print(f" ✓ Associated Solid Line {path_id} - Distance: {min_distance:.1f}px, Connected at: {endpoint_type}")
+                print(f" ✓ Associated Solid Line {path_id} - Distance: {min_distance:.1f}px, Connected at: {endpoint_type}", flush=True)
       
         if player_associations:
             player_solid_associations[player_id] = player_associations
-            print(f" Total directly connected solid lines for Player {player_id}: {len(player_associations)}")
+            print(f" Total directly connected solid lines for Player {player_id}: {len(player_associations)}", flush=True)
         else:
-            print(f" No solid lines associated with Player {player_id}")
+            print(f" No solid lines associated with Player {player_id}", flush=True)
   
-    print(f"\n{'='*70}")
-    print(f"PHASE 1.5: FINDING SOLID LINE CONTINUATIONS")
-    print(f"{'='*70}")
-    print(f"Max continuation distance: {PATH_CONTINUATION_DISTANCE} pixels")
+    print(f"\n{'='*70}", flush=True)
+    print(f"PHASE 1.5: FINDING SOLID LINE CONTINUATIONS", flush=True)
+    print(f"{'='*70}", flush=True)
+    print(f"Max continuation distance: {PATH_CONTINUATION_DISTANCE} pixels", flush=True)
   
     continuation_found = True
     iteration = 0
@@ -551,7 +572,7 @@ def associate_solid_lines_to_players(player_json_path, sam3_json_path, max_dista
         continuation_found = False
         iteration += 1
       
-        print(f"\nIteration {iteration}:")
+        print(f"\nIteration {iteration}:", flush=True)
         for player_id, path_list in player_solid_associations.items():
             for path_info in path_list:
                 if path_info["continuation_chain"]:
@@ -605,18 +626,18 @@ def associate_solid_lines_to_players(player_json_path, sam3_json_path, max_dista
                         path_info["continuation_chain"].append(unassigned_path_id)
                         solid_path_assignments[unassigned_path_id] = player_id
                         continuation_found = True
-                        print(f" ✓ Player {player_id}: Solid Line {unassigned_path_id} continues Line {last_path_id} (distance: {min_distance:.1f}px)")
+                        print(f" ✓ Player {player_id}: Solid Line {unassigned_path_id} continues Line {last_path_id} (distance: {min_distance:.1f}px)", flush=True)
   
-    print(f"\n{'='*70}")
-    print(f"SOLID LINE ASSOCIATION SUMMARY")
-    print(f"{'='*70}")
-    print(f"Total players with solid lines: {len(player_solid_associations)}")
-    print(f"Total solid lines associated: {len(solid_path_assignments)}")
-    print(f"Unassociated solid lines: {len(solid_paths) - len(solid_path_assignments)}")
+    print(f"\n{'='*70}", flush=True)
+    print(f"SOLID LINE ASSOCIATION SUMMARY", flush=True)
+    print(f"{'='*70}", flush=True)
+    print(f"Total players with solid lines: {len(player_solid_associations)}", flush=True)
+    print(f"Total solid lines associated: {len(solid_path_assignments)}", flush=True)
+    print(f"Unassociated solid lines: {len(solid_paths) - len(solid_path_assignments)}", flush=True)
   
     for player_id, path_list in player_solid_associations.items():
         total_paths = sum(1 + len(p["continuation_chain"]) for p in path_list)
-        print(f" Player {player_id}: {total_paths} total solid lines ({len(path_list)} direct + continuations)")
+        print(f" Player {player_id}: {total_paths} total solid lines ({len(path_list)} direct + continuations)", flush=True)
   
     return player_solid_associations
 
@@ -696,7 +717,7 @@ def find_branching_point(dotted_line, primary_path_points):
         branch_index = branch_index_end
         # Reverse dotted line points for consistency (so it starts at branching point)
         dotted_line["mask_points"] = list(reversed(dotted_line["mask_points"]))
-        print(f"    Dotted line reversed - branching from end point at index {branch_index}")
+        print(f"    Dotted line reversed - branching from end point at index {branch_index}", flush=True)
     else:
         branch_index = branch_index_start
     
@@ -706,27 +727,27 @@ def associate_dotted_lines_to_players(player_solid_associations, sam3_json_path,
     """
     Phase 2: Associate dotted lines (secondary routes) to players based on proximity to their primary routes
     """
-    print(f"\n{'='*70}")
-    print(f"PHASE 2: ASSOCIATING DOTTED LINES (SECONDARY ROUTES) TO PLAYERS")
-    print(f"{'='*70}")
-    print(f"Max association distance: {max_distance} pixels")
-    print(f"Checking proximity to entire primary route (not just endpoints)")
+    print(f"\n{'='*70}", flush=True)
+    print(f"PHASE 2: ASSOCIATING DOTTED LINES (SECONDARY ROUTES) TO PLAYERS", flush=True)
+    print(f"{'='*70}", flush=True)
+    print(f"Max association distance: {max_distance} pixels", flush=True)
+    print(f"Checking proximity to entire primary route (not just endpoints)", flush=True)
     
     if not os.path.exists(sam3_json_path):
-        print(f"SAM3 JSON not found: {sam3_json_path}")
+        print(f"SAM3 JSON not found: {sam3_json_path}", flush=True)
         return {}
     
     with open(sam3_json_path, 'r') as f:
         sam3_data = json.load(f)
     
     dotted_lines = [obj for obj in sam3_data.get("objects", []) if obj.get("type") == "dotted line"]
-    print(f"Total dotted lines to associate: {len(dotted_lines)}")
+    print(f"Total dotted lines to associate: {len(dotted_lines)}", flush=True)
     
     player_dotted_associations = {}
     dotted_path_assignments = {}
     
     for player_id, solid_chains in player_solid_associations.items():
-        print(f"\nProcessing Player {player_id}:")
+        print(f"\nProcessing Player {player_id}:", flush=True)
         player_dotted_associations[player_id] = []
         
         # For each solid line chain this player has
@@ -744,10 +765,10 @@ def associate_dotted_lines_to_players(player_solid_associations, sam3_json_path,
                         break
             
             if not primary_points:
-                print(f"  No primary route points found for chain {all_path_ids}")
+                print(f"  No primary route points found for chain {all_path_ids}", flush=True)
                 continue
             
-            print(f"  Primary chain {all_path_ids}: {len(primary_points)} points")
+            print(f"  Primary chain {all_path_ids}: {len(primary_points)} points", flush=True)
             
             for dotted in dotted_lines:
                 dotted_id = dotted["id"]
@@ -789,19 +810,19 @@ def associate_dotted_lines_to_players(player_solid_associations, sam3_json_path,
                     player_dotted_associations[player_id].append(dotted_assoc)
                     dotted_path_assignments[dotted_id] = player_id
                     
-                    print(f"  ✓ Associated Dotted Line {dotted_id} - Distance: {association['min_distance']:.1f}px")
-                    print(f"    Branching from primary route at point {branching_point} (index {branch_index})")
+                    print(f"  ✓ Associated Dotted Line {dotted_id} - Distance: {association['min_distance']:.1f}px", flush=True)
+                    print(f"    Branching from primary route at point {branching_point} (index {branch_index})", flush=True)
     
-    print(f"\n{'='*70}")
-    print(f"DOTTED LINE ASSOCIATION SUMMARY")
-    print(f"{'='*70}")
-    print(f"Total dotted lines: {len(dotted_lines)}")
-    print(f"Associated dotted lines: {len(dotted_path_assignments)}")
-    print(f"Unassociated dotted lines: {len(dotted_lines) - len(dotted_path_assignments)}")
+    print(f"\n{'='*70}", flush=True)
+    print(f"DOTTED LINE ASSOCIATION SUMMARY", flush=True)
+    print(f"{'='*70}", flush=True)
+    print(f"Total dotted lines: {len(dotted_lines)}", flush=True)
+    print(f"Associated dotted lines: {len(dotted_path_assignments)}", flush=True)
+    print(f"Unassociated dotted lines: {len(dotted_lines) - len(dotted_path_assignments)}", flush=True)
     
     for player_id, dotted_list in player_dotted_associations.items():
         if dotted_list:
-            print(f" Player {player_id}: {len(dotted_list)} dotted lines")
+            print(f" Player {player_id}: {len(dotted_list)} dotted lines", flush=True)
     
     return player_dotted_associations
 
@@ -871,14 +892,14 @@ def build_primary_chains(player_solid_associations, sam3_json_path):
 # ===============================================================================
 
 def associate_arrowheads_to_paths(player_solid_associations, sam3_json_path, max_distance=ARROWHEAD_TO_PATH_MAX_DISTANCE, tail_percentage=PATH_TAIL_PERCENTAGE):
-    print(f"\n{'='*70}")
-    print(f"ASSOCIATING ARROWHEADS TO PATH SEGMENTS")
-    print(f"{'='*70}")
-    print(f"Max association distance: {max_distance} pixels")
-    print(f"Considering last {tail_percentage*100:.0f}% of each path")
+    print(f"\n{'='*70}", flush=True)
+    print(f"ASSOCIATING ARROWHEADS TO PATH SEGMENTS", flush=True)
+    print(f"{'='*70}", flush=True)
+    print(f"Max association distance: {max_distance} pixels", flush=True)
+    print(f"Considering last {tail_percentage*100:.0f}% of each path", flush=True)
     
     if not os.path.exists(sam3_json_path):
-        print(f"SAM3 JSON not found: {sam3_json_path}")
+        print(f"SAM3 JSON not found: {sam3_json_path}", flush=True)
         return {}
     
     with open(sam3_json_path, 'r') as f:
@@ -887,13 +908,13 @@ def associate_arrowheads_to_paths(player_solid_associations, sam3_json_path, max
     paths_dict = {obj["id"]: obj for obj in sam3_data.get("objects", []) if obj.get("type") in ["line", "dotted line"]}
     arrowheads = [obj for obj in sam3_data.get("objects", []) if obj.get("type") == "arrowhead"]
     
-    print(f"Total arrowheads to associate: {len(arrowheads)}")
+    print(f"Total arrowheads to associate: {len(arrowheads)}", flush=True)
     
     arrowhead_assignments = {}
     path_to_arrowhead_map = {}
     
     for player_id, path_list in player_solid_associations.items():
-        print(f"\nProcessing Player {player_id}:")
+        print(f"\nProcessing Player {player_id}:", flush=True)
         
         for path_info in path_list:
             main_path_id = path_info["path_id"]
@@ -915,7 +936,7 @@ def associate_arrowheads_to_paths(player_solid_associations, sam3_json_path, max
             tail_start_idx = int(total_points * (1 - tail_percentage))
             tail_points = all_path_points[tail_start_idx:]
             
-            print(f"  Path chain {all_path_ids}: {total_points} points, checking last {len(tail_points)} points")
+            print(f"  Path chain {all_path_ids}: {total_points} points, checking last {len(tail_points)} points", flush=True)
             
             best_arrowhead = None
             best_distance = float('inf')
@@ -945,7 +966,7 @@ def associate_arrowheads_to_paths(player_solid_associations, sam3_json_path, max
                     best_arrowhead = arrowhead
             if best_arrowhead is not None and best_distance <= max_distance:
                 if best_distance > max_distance * 2:
-                    print(f"  Warning: Arrowhead {best_arrowhead['id']} may not belong to path chain {all_path_ids}")
+                    print(f"  Warning: Arrowhead {best_arrowhead['id']} may not belong to path chain {all_path_ids}", flush=True)
                 
                 arrowhead_id = best_arrowhead["id"]
                 arrowhead_assignments[arrowhead_id] = path_chain_key
@@ -959,32 +980,32 @@ def associate_arrowheads_to_paths(player_solid_associations, sam3_json_path, max
                     "arrowhead_sampled_points": best_arrowhead.get("sampled_points"),
                     "distance_to_path": round(best_distance, 2)
                 }
-                print(f"  ✓ Associated Arrowhead {arrowhead_id} - Distance: {best_distance:.1f}px")
+                print(f"  ✓ Associated Arrowhead {arrowhead_id} - Distance: {best_distance:.1f}px", flush=True)
             else:
-                print(f"  ✗ No arrowhead found within {max_distance}px (closest: {best_distance:.1f}px)")
+                print(f"  ✗ No arrowhead found within {max_distance}px (closest: {best_distance:.1f}px)", flush=True)
     
-    print(f"\n{'='*70}")
-    print(f"ARROWHEAD ASSOCIATION SUMMARY")
-    print(f"{'='*70}")
-    print(f"Total arrowheads: {len(arrowheads)}")
-    print(f"Associated arrowheads: {len(arrowhead_assignments)}")
-    print(f"Unassociated arrowheads: {len(arrowheads) - len(arrowhead_assignments)}")
+    print(f"\n{'='*70}", flush=True)
+    print(f"ARROWHEAD ASSOCIATION SUMMARY", flush=True)
+    print(f"{'='*70}", flush=True)
+    print(f"Total arrowheads: {len(arrowheads)}", flush=True)
+    print(f"Associated arrowheads: {len(arrowhead_assignments)}", flush=True)
+    print(f"Unassociated arrowheads: {len(arrowheads) - len(arrowhead_assignments)}", flush=True)
     
     return path_to_arrowhead_map
 
 def associate_text_to_players(player_json_path, text_json_path, sam3_json_path, player_solid_associations):
-    print(f"\n{'='*70}")
-    print(f"ASSOCIATING TEXT TO PLAYERS")
-    print(f"{'='*70}")
+    print(f"\n{'='*70}", flush=True)
+    print(f"ASSOCIATING TEXT TO PLAYERS", flush=True)
+    print(f"{'='*70}", flush=True)
     if not os.path.exists(player_json_path):
-        print(f"Player JSON not found: {player_json_path}")
+        print(f"Player JSON not found: {player_json_path}", flush=True)
         return {}
   
     with open(player_json_path, 'r') as f:
         player_data = json.load(f)
   
     if not os.path.exists(text_json_path):
-        print(f"Text JSON not found: {text_json_path}")
+        print(f"Text JSON not found: {text_json_path}", flush=True)
         return {}
   
     with open(text_json_path, 'r') as f:
@@ -1000,7 +1021,7 @@ def associate_text_to_players(player_json_path, text_json_path, sam3_json_path, 
   
     text_to_player_map = {}
   
-    print(f"Processing {len(text_elements)} text elements...")
+    print(f"Processing {len(text_elements)} text elements...", flush=True)
   
     for text_elem in text_elements:
         text_id = text_elem.get("text_id")
@@ -1009,7 +1030,7 @@ def associate_text_to_players(player_json_path, text_json_path, sam3_json_path, 
         text_y = text_position.get("y", 0)
         text_label = text_elem.get("label", "")
       
-        print(f"\nText {text_id} ('{text_label}') at position ({text_x}, {text_y})")
+        print(f"\nText {text_id} ('{text_label}') at position ({text_x}, {text_y})", flush=True)
       
         best_player_id = None
         best_distance = float('inf')
@@ -1062,16 +1083,16 @@ def associate_text_to_players(player_json_path, text_json_path, sam3_json_path, 
                 "distance": round(best_distance, 2),
                 "association_type": best_association_type
             }
-            print(f" ✓ Associated with Player {best_player_id} (distance: {best_distance:.1f}px, type: {best_association_type})")
+            print(f" ✓ Associated with Player {best_player_id} (distance: {best_distance:.1f}px, type: {best_association_type})", flush=True)
         else:
-            print(f" ✗ No close player found (closest: {best_distance:.1f}px)")
+            print(f" ✗ No close player found (closest: {best_distance:.1f}px)", flush=True)
   
-    print(f"\n{'='*70}")
-    print(f"TEXT ASSOCIATION SUMMARY")
-    print(f"{'='*70}")
-    print(f"Total text elements: {len(text_elements)}")
-    print(f"Associated text elements: {len(text_to_player_map)}")
-    print(f"Unassociated text elements: {len(text_elements) - len(text_to_player_map)}")
+    print(f"\n{'='*70}", flush=True)
+    print(f"TEXT ASSOCIATION SUMMARY", flush=True)
+    print(f"{'='*70}", flush=True)
+    print(f"Total text elements: {len(text_elements)}", flush=True)
+    print(f"Associated text elements: {len(text_to_player_map)}", flush=True)
+    print(f"Unassociated text elements: {len(text_elements) - len(text_to_player_map)}", flush=True)
   
     return text_to_player_map
 
@@ -1102,20 +1123,20 @@ def create_script_json(player_json_path, sam3_json_path, text_json_path, player_
         result += " ]"
         return result
   
-    print(f"\n{'='*70}")
-    print(f"CREATING SCRIPT.JSON WITH TWO-PHASE PATH ASSOCIATION")
-    print(f"{'='*70}")
-    print(f"Image dimensions: {image_width}x{image_height}")
-    print(f"Primary routes (solid lines) and secondary routes (dotted lines)")
+    print(f"\n{'='*70}", flush=True)
+    print(f"CREATING SCRIPT.JSON WITH TWO-PHASE PATH ASSOCIATION", flush=True)
+    print(f"{'='*70}", flush=True)
+    print(f"Image dimensions: {image_width}x{image_height}", flush=True)
+    print(f"Primary routes (solid lines) and secondary routes (dotted lines)", flush=True)
   
     if not os.path.exists(player_json_path):
-        print(f"Player JSON not found: {player_json_path}")
+        print(f"Player JSON not found: {player_json_path}", flush=True)
         return
   
     with open(player_json_path, 'r') as f:
         player_data = json.load(f)
     if not os.path.exists(sam3_json_path):
-        print(f"SAM3 JSON not found: {sam3_json_path}")
+        print(f"SAM3 JSON not found: {sam3_json_path}", flush=True)
         return
   
     with open(sam3_json_path, 'r') as f:
@@ -1246,7 +1267,7 @@ def create_script_json(player_json_path, sam3_json_path, text_json_path, player_
                     all_path_points = [trimmed_points]
                     
                     trimmed_count = len(trimmed_points)
-                    print(f"Player {player_id}: Primary route {all_path_ids} - Trimmed from {original_point_count} to {trimmed_count} points using OWN Arrowhead {arrowhead_data['arrowhead_id']}")
+                    print(f"Player {player_id}: Primary route {all_path_ids} - Trimmed from {original_point_count} to {trimmed_count} points using OWN Arrowhead {arrowhead_data['arrowhead_id']}", flush=True)
                 else:
                     all_path_points = all_path_points
                 
@@ -1271,7 +1292,7 @@ def create_script_json(player_json_path, sam3_json_path, text_json_path, player_
                     json_str += f' "sampled_points": {arrowhead_data["arrowhead_sampled_points"]},\n'
                     json_str += f' "distance_to_path": {arrowhead_data["distance_to_path"]}\n'
                     json_str += f' }}\n'
-                    print(f"Player {player_id}: Primary route {all_path_ids} - Associated with Arrowhead {arrowhead_data['arrowhead_id']}")
+                    print(f"Player {player_id}: Primary route {all_path_ids} - Associated with Arrowhead {arrowhead_data['arrowhead_id']}", flush=True)
                 else:
                     json_str += f' "has_arrowhead": false\n'
               
@@ -1280,13 +1301,13 @@ def create_script_json(player_json_path, sam3_json_path, text_json_path, player_
                 else:
                     json_str += ' }\n'
               
-                print(f"Player {player_id}: Primary route {all_path_ids} - {total_points} total points ({len(all_path_points)} segments)")
+                print(f"Player {player_id}: Primary route {all_path_ids} - {total_points} total points ({len(all_path_points)} segments)", flush=True)
           
             json_str += ' ],\n'
         else:
             json_str += f' "has_primary_routes": false,\n'
             json_str += f' "primary_routes": [],\n'
-            print(f"Player {player_id}: No primary routes")
+            print(f"Player {player_id}: No primary routes", flush=True)
         
         # ============ SECONDARY ROUTES (DOTTED LINES) ============
         if player_id in player_dotted_associations and player_dotted_associations[player_id]:
@@ -1318,13 +1339,13 @@ def create_script_json(player_json_path, sam3_json_path, text_json_path, player_
                 else:
                     json_str += ' }\n'
               
-                print(f"Player {player_id}: Secondary route (Dotted Line {dotted_line_id}) - Branches from primary route {primary_chain_ids} at index {branch_info['index']}")
+                print(f"Player {player_id}: Secondary route (Dotted Line {dotted_line_id}) - Branches from primary route {primary_chain_ids} at index {branch_info['index']}", flush=True)
           
             json_str += ' ],\n'
         else:
             json_str += f' "has_secondary_routes": false,\n'
             json_str += f' "secondary_routes": [],\n'
-            print(f"Player {player_id}: No secondary routes")
+            print(f"Player {player_id}: No secondary routes", flush=True)
       
         # ============ TEXT ASSOCIATIONS ============
         if player_id in player_to_text_map:
@@ -1373,7 +1394,7 @@ def create_script_json(player_json_path, sam3_json_path, text_json_path, player_
                 else:
                     json_str += ' }\n'
               
-                print(f"Player {player_id}: Text '{text_elem.get('label', '')}' (distance: {text_assoc['distance']}px, type: {text_assoc['association_type']})")
+                print(f"Player {player_id}: Text '{text_elem.get('label', '')}' (distance: {text_assoc['distance']}px, type: {text_assoc['association_type']})", flush=True)
           
             json_str += ' ]\n'
         else:
@@ -1413,8 +1434,8 @@ def create_script_json(player_json_path, sam3_json_path, text_json_path, player_
     with open(output_path, 'w') as f:
         f.write(json_str)
   
-    print(f"\n✓ Script JSON saved to: {output_path}")
-    print(f" Total players: {len(players)}")
+    print(f"\n✓ Script JSON saved to: {output_path}", flush=True)
+    print(f" Total players: {len(players)}", flush=True)
     
     players_with_primary_routes = len([p for p in players if player_solid_associations.get(p.get("player_id"))])
     players_with_secondary_routes = len([p for p in players if player_dotted_associations.get(p.get("player_id")) and player_dotted_associations.get(p.get("player_id"))])
@@ -1423,14 +1444,14 @@ def create_script_json(player_json_path, sam3_json_path, text_json_path, player_
     total_secondary_routes = sum(len(dotted_list) for dotted_list in player_dotted_associations.values())
     players_with_text = len([p for p in players if player_to_text_map.get(p.get("player_id"))])
   
-    print(f" Players with primary routes: {players_with_primary_routes}")
-    print(f" Players with secondary routes: {players_with_secondary_routes}")
-    print(f" Total primary route chains: {total_primary_chains}")
-    print(f" Total secondary routes: {total_secondary_routes}")
-    print(f" Total arrowheads: {len(all_arrowheads)}")
-    print(f" Associated arrowheads: {len(associated_arrowhead_ids)}")
-    print(f" Unassociated arrowheads: {len(unassociated_arrowheads)}")
-    print(f" Players with associated text: {players_with_text}")
+    print(f" Players with primary routes: {players_with_primary_routes}", flush=True)
+    print(f" Players with secondary routes: {players_with_secondary_routes}", flush=True)
+    print(f" Total primary route chains: {total_primary_chains}", flush=True)
+    print(f" Total secondary routes: {total_secondary_routes}", flush=True)
+    print(f" Total arrowheads: {len(all_arrowheads)}", flush=True)
+    print(f" Associated arrowheads: {len(associated_arrowhead_ids)}", flush=True)
+    print(f" Unassociated arrowheads: {len(unassociated_arrowheads)}", flush=True)
+    print(f" Players with associated text: {players_with_text}", flush=True)
 
 def draw_arrowhead(image, arrowhead_points, color=(0, 0, 0), fill=True):
     if not arrowhead_points or len(arrowhead_points) < 3:
@@ -1447,7 +1468,7 @@ def draw_arrowhead(image, arrowhead_points, color=(0, 0, 0), fill=True):
 
 def draw_from_script_json(image, script_json_path, draw_mode="final", point_size=1, is_white_background=True):
     if not os.path.exists(script_json_path):
-        print(f"Script JSON not found: {script_json_path}")
+        print(f"Script JSON not found: {script_json_path}", flush=True)
         return image
   
     with open(script_json_path, 'r') as f:
@@ -1456,9 +1477,9 @@ def draw_from_script_json(image, script_json_path, draw_mode="final", point_size
     players = script_data.get("players", [])
     unassociated_arrowheads = script_data.get("unassociated_arrowheads", [])
   
-    print(f"\nDrawing {draw_mode} visualization from script.json...")
-    print(f"Total players: {len(players)}")
-    print(f"Total unassociated arrowheads: {len(unassociated_arrowheads)}")
+    print(f"\nDrawing {draw_mode} visualization from script.json...", flush=True)
+    print(f"Total players: {len(players)}", flush=True)
+    print(f"Total unassociated arrowheads: {len(unassociated_arrowheads)}", flush=True)
   
     if draw_mode == "yolo":
         sam3_json_path = SAM3_RESULTS_JSON_PATH
@@ -1696,12 +1717,12 @@ def trim_path_at_arrowhead(path_points, arrowhead_centroid, arrowhead_points=Non
     if validate_ownership and arrowhead_points:
         path_length = calculate_distance(path_points[0], path_points[-1])
         if min_distance > path_length * 0.3:
-            print(f"Warning: Arrowhead may not belong to this path (distance: {min_distance:.1f}px)")
+            print(f"Warning: Arrowhead may not belong to this path (distance: {min_distance:.1f}px)", flush=True)
     
     trimmed_points = path_points[:min_index + 1]
     
-    print(f"    Trimmed at index {min_index}: Point {trimmed_points[-1]} (distance: {min_distance:.2f}px)")
-    print(f"    Removed {len(path_points) - len(trimmed_points)} points after index {min_index}")
+    print(f"    Trimmed at index {min_index}: Point {trimmed_points[-1]} (distance: {min_distance:.2f}px)", flush=True)
+    print(f"    Removed {len(path_points) - len(trimmed_points)} points after index {min_index}", flush=True)
     
     return trimmed_points
 
@@ -1720,11 +1741,11 @@ def run_manim_animation(script_json_path=None, output_dir=None):
     if output_dir is None:
         output_dir = OUTPUT_DIR
 
-    print(f"\n{'='*70}")
-    print("RUNNING MANIM ANIMATION")
-    print(f"{'='*70}")
-    print(f"JSON path : {script_json_path}")
-    print(f"Output dir: {output_dir}")
+    print(f"\n{'='*70}", flush=True)
+    print("RUNNING MANIM ANIMATION", flush=True)
+    print(f"{'='*70}", flush=True)
+    print(f"JSON path : {script_json_path}", flush=True)
+    print(f"Output dir: {output_dir}", flush=True)
 
     # manim.py lives in animators/ next to pipeline.py's parent (parsers/)
     script_dir   = os.path.dirname(os.path.abspath(__file__))          # parsers/
@@ -1732,7 +1753,7 @@ def run_manim_animation(script_json_path=None, output_dir=None):
     manim_script = os.path.join(backend_dir, "animators", "manim.py")
 
     if not os.path.exists(manim_script):
-        print(f"✗ manim.py not found at: {manim_script}")
+        print(f"✗ manim.py not found at: {manim_script}", flush=True)
         return None
 
     # Build env: inject the JSON path so manim.py picks it up via os.environ
@@ -1744,7 +1765,7 @@ def run_manim_animation(script_json_path=None, output_dir=None):
     os.makedirs(media_dir, exist_ok=True)
 
     try:
-        print(f"Running: manim -ql --media_dir {media_dir} --output_file output {manim_script} PlayerPlottingScene")
+        print(f"Running: manim -ql --media_dir {media_dir} --output_file output {manim_script} PlayerPlottingScene", flush=True)
 
         result = subprocess.run(
             [
@@ -1761,12 +1782,20 @@ def run_manim_animation(script_json_path=None, output_dir=None):
             timeout=300,
         )
 
+        # --- NEW: always print Manim logs ---
+        print("=== MANIM STDOUT ===", flush=True)
+        print(result.stdout, flush=True)
+        print("=== MANIM STDERR ===", flush=True)
+        print(result.stderr, flush=True)
+        sys.stdout.flush()
+        # ------------------------------------
+
         if result.returncode != 0:
-            print(f"✗ Manim failed (exit {result.returncode})")
-            print(result.stderr[-3000:])
+            print(f"✗ Manim failed (exit {result.returncode})", flush=True)
+            print(result.stderr[-3000:], flush=True)
             return None
 
-        print("✓ Manim animation completed successfully!")
+        print("✓ Manim animation completed successfully!", flush=True)
 
         # Walk the media dir to find the rendered .mp4
         video_path = None
@@ -1779,17 +1808,17 @@ def run_manim_animation(script_json_path=None, output_dir=None):
                 break
 
         if video_path:
-            print(f"✓ Video file: {video_path}")
+            print(f"✓ Video file: {video_path}", flush=True)
         else:
-            print("✗ No .mp4 found after Manim render")
+            print("✗ No .mp4 found after Manim render", flush=True)
 
         return video_path
 
     except subprocess.TimeoutExpired:
-        print("✗ Manim timed out (>5 min)")
+        print("✗ Manim timed out (>5 min)", flush=True)
         return None
     except FileNotFoundError:
-        print("✗ 'manim' command not found. Install with: pip install manim")
+        print("✗ 'manim' command not found. Install with: pip install manim", flush=True)
         return None
 
 def main():
@@ -1812,35 +1841,36 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(cropped_dir, exist_ok=True)
 
-    print("="*70)
-    print("PHASE 1: GENERATING ALL JSON FILES")
-    print("="*70)
+    # --- NEW: add flush=True to all important prints in main ---
+    print("="*70, flush=True)
+    print("PHASE 1: GENERATING ALL JSON FILES", flush=True)
+    print("="*70, flush=True)
   
-    print(f"\nLoading image: {image_path}")
+    print(f"\nLoading image: {image_path}", flush=True)
     image = cv2.imread(image_path)
     h, w, _ = image.shape
-    print(f"Image dimensions: {w}x{h}")
+    print(f"Image dimensions: {w}x{h}", flush=True)
     
-    print("\n" + "="*70)
-    print("STEP 1: Running SAM3 segmentation and generating JSON")
-    print("="*70)
+    print("\n" + "="*70, flush=True)
+    print("STEP 1: Running SAM3 segmentation and generating JSON", flush=True)
+    print("="*70, flush=True)
   
-    print("\nLoading SAM3 models...")
+    print("\nLoading SAM3 models...", flush=True)
     sam3_model, sam3_processor, device, dtype = load_sam3_models(SAM3_MODEL_PATH)
   
-    print("\nRunning SAM3 segmentation for 'line'...")
+    print("\nRunning SAM3 segmentation for 'line'...", flush=True)
     line_objects_json = process_with_sam3(
         image_path, sam3_model, sam3_processor, device,
         text_prompt="line", line_type="line"
     )
   
-    print("\nRunning SAM3 segmentation for 'dotted line'...")
+    print("\nRunning SAM3 segmentation for 'dotted line'...", flush=True)
     dotted_line_objects_json = process_with_sam3(
         image_path, sam3_model, sam3_processor, device,
         text_prompt="dotted line", line_type="dotted line"
     )
   
-    print("\nRunning SAM3 segmentation for 'arrowhead'...")
+    print("\nRunning SAM3 segmentation for 'arrowhead'...", flush=True)
     arrowhead_objects_json = process_with_sam3(
         image_path, sam3_model, sam3_processor, device,
         text_prompt="arrowhead", line_type="arrowhead"
@@ -1860,32 +1890,40 @@ def main():
         all_sam3_objects.append(obj)
   
     if all_sam3_objects:
-        print(f"\n✓ Saving SAM3 JSON to: {sam3_results_json_path}")
-        print(f" Total objects: {len(all_sam3_objects)}")
-        print(f" - Solid lines: {len(line_objects_json)}")
-        print(f" - Dotted lines: {len(dotted_line_objects_json)}")
-        print(f" - Arrowheads: {len(arrowhead_objects_json)}")
+        print(f"\n✓ Saving SAM3 JSON to: {sam3_results_json_path}", flush=True)
+        print(f" Total objects: {len(all_sam3_objects)}", flush=True)
+        print(f" - Solid lines: {len(line_objects_json)}", flush=True)
+        print(f" - Dotted lines: {len(dotted_line_objects_json)}", flush=True)
+        print(f" - Arrowheads: {len(arrowhead_objects_json)}", flush=True)
         save_sam3_json_compact(sam3_results_json_path, all_sam3_objects, points_per_line=30)
     else:
-        print("\n✗ No SAM3 objects detected")
+        print("\n✗ No SAM3 objects detected", flush=True)
   
-    print("\n" + "="*70)
-    print("STEP 2: Running YOLO detection and alphabet recognition")
-    print("="*70)
+    print("\n" + "="*70, flush=True)
+    print("STEP 2: Running YOLO detection and alphabet recognition", flush=True)
+    print("="*70, flush=True)
   
-    print("\nLoading YOLO models...")
+    print("\nLoading YOLO models...", flush=True)
     yolo_model = YOLO(YOLO_MODEL_PATH)
     alphabet_model = YOLO(YOLO_ALPHABET_MODEL_PATH)
   
-    print("Running YOLO detection...")
+    print("Running YOLO detection...", flush=True)
+    # Device selection: prefer CUDA, then MPS, then CPU
+    if torch.cuda.is_available():
+        _yolo_device = "cuda"
+    elif torch.backends.mps.is_available():
+        _yolo_device = "mps"
+    else:
+        _yolo_device = "cpu"
+
     yolo_results = yolo_model(
         image_path,
         conf=0.25,
         iou=0.5,
-        device="mps" if torch.backends.mps.is_available() else "cpu"
+        device=_yolo_device
     )
   
-    print("\nProcessing player detections and detecting alphabets...")
+    print("\nProcessing player detections and detecting alphabets...", flush=True)
     circle_count = 0
     square_count = 0
     player_data = []
@@ -1957,26 +1995,27 @@ def main():
     if player_data:
         with open(player_json_path, 'w') as f:
             json.dump({"players": player_data}, f, indent=2)
-        print(f"\n✓ Player JSON saved to: {player_json_path}")
-        print(f" Total players: {len(player_data)} (Circles: {circle_count}, Squares: {square_count})")
+        print(f"\n✓ Player JSON saved to: {player_json_path}", flush=True)
+        print(f" Total players: {len(player_data)} (Circles: {circle_count}, Squares: {square_count})", flush=True)
     else:
-        print("\n✗ No players detected")
+        print("\n✗ No players detected", flush=True)
   
-    print("\n" + "="*70)
-    print("STEP 3: Running OCR and generating text JSON (with offensive line pattern filtering)")
-    print("="*70)
+    print("\n" + "="*70, flush=True)
+    print("STEP 3: Running OCR and generating text JSON (with offensive line pattern filtering)", flush=True)
+    print("="*70, flush=True)
   
-    print("\nRunning EasyOCR...")
-    reader = easyocr.Reader(['en'], gpu=True)
+    print("\nRunning EasyOCR...", flush=True)
+    # Use GPU only if CUDA is available
+    reader = easyocr.Reader(['en'], gpu=torch.cuda.is_available())
     ocr_results = reader.readtext(image_path)
   
-    print(f"Found {len(ocr_results)} text elements with OCR")
+    print(f"Found {len(ocr_results)} text elements with OCR", flush=True)
     text_data = []
     filtered_count = 0
   
     for idx, (bbox, text, prob) in enumerate(ocr_results):
         if is_offensive_line_pattern(text):
-            print(f" ✗ Filtered out offensive line pattern: '{text}'")
+            print(f" ✗ Filtered out offensive line pattern: '{text}'", flush=True)
             filtered_count += 1
             continue
       
@@ -2008,20 +2047,20 @@ def main():
             }
         }
         text_data.append(text_info)
-        print(f" ✓ Valid text: '{text}'")
+        print(f" ✓ Valid text: '{text}'", flush=True)
   
     if text_data:
         with open(text_json_path, 'w') as f:
             json.dump({"text_elements": text_data}, f, indent=2)
-        print(f"\n✓ Text JSON saved to: {text_json_path}")
-        print(f" Total valid text elements: {len(text_data)}")
-        print(f" Filtered offensive line patterns: {filtered_count}")
+        print(f"\n✓ Text JSON saved to: {text_json_path}", flush=True)
+        print(f" Total valid text elements: {len(text_data)}", flush=True)
+        print(f" Filtered offensive line patterns: {filtered_count}", flush=True)
     else:
-        print("\n✗ No valid text elements detected")
+        print("\n✗ No valid text elements detected", flush=True)
   
-    print("\n" + "="*70)
-    print("STEP 4: TWO-PHASE PATH ASSOCIATION")
-    print("="*70)
+    print("\n" + "="*70, flush=True)
+    print("STEP 4: TWO-PHASE PATH ASSOCIATION", flush=True)
+    print("="*70, flush=True)
     
     # ============ PHASE 1: SOLID LINE ASSOCIATION ============
     player_solid_associations = associate_solid_lines_to_players(
@@ -2042,9 +2081,9 @@ def main():
         max_distance=DOTTED_LINE_ASSOCIATION_DISTANCE
     )
   
-    print("\n" + "="*70)
-    print("STEP 4.5: ASSOCIATING ARROWHEADS TO PRIMARY ROUTES")
-    print("="*70)
+    print("\n" + "="*70, flush=True)
+    print("STEP 4.5: ASSOCIATING ARROWHEADS TO PRIMARY ROUTES", flush=True)
+    print("="*70, flush=True)
   
     path_to_arrowhead_map = associate_arrowheads_to_paths(
         player_solid_associations,
@@ -2053,14 +2092,14 @@ def main():
         tail_percentage=PATH_TAIL_PERCENTAGE
     )
   
-    print("\n" + "="*70)
-    print("STEP 4.6: TRIMMING PATHS AT ARROWHEADS")
-    print("="*70)
-    print("Note: Primary routes will be trimmed at the point closest to the arrowhead centroid")
+    print("\n" + "="*70, flush=True)
+    print("STEP 4.6: TRIMMING PATHS AT ARROWHEADS", flush=True)
+    print("="*70, flush=True)
+    print("Note: Primary routes will be trimmed at the point closest to the arrowhead centroid", flush=True)
   
-    print("\n" + "="*70)
-    print("STEP 5: ASSOCIATING TEXT TO PLAYERS")
-    print("="*70)
+    print("\n" + "="*70, flush=True)
+    print("STEP 5: ASSOCIATING TEXT TO PLAYERS", flush=True)
+    print("="*70, flush=True)
   
     text_to_player_map = associate_text_to_players(
         player_json_path,
@@ -2069,9 +2108,9 @@ def main():
         player_solid_associations
     )
   
-    print("\n" + "="*70)
-    print("STEP 6: CREATING SCRIPT.JSON WITH TWO-PHASE PATH ASSOCIATION")
-    print("="*70)
+    print("\n" + "="*70, flush=True)
+    print("STEP 6: CREATING SCRIPT.JSON WITH TWO-PHASE PATH ASSOCIATION", flush=True)
+    print("="*70, flush=True)
   
     create_script_json(
         player_json_path,
@@ -2087,13 +2126,13 @@ def main():
         points_per_line=30
     )
   
-    print("\n" + "="*70)
-    print("PHASE 2: DRAWING ALL OUTPUT IMAGES FROM SCRIPT.JSON")
-    print("="*70)
+    print("\n" + "="*70, flush=True)
+    print("PHASE 2: DRAWING ALL OUTPUT IMAGES FROM SCRIPT.JSON", flush=True)
+    print("="*70, flush=True)
   
-    print("\n" + "-"*70)
-    print("Creating YOLO Output Image (colored visualization from script.json)")
-    print("-"*70)
+    print("\n" + "-"*70, flush=True)
+    print("Creating YOLO Output Image (colored visualization from script.json)", flush=True)
+    print("-"*70, flush=True)
   
     yolo_output_image = image.copy()
     yolo_output_image = draw_from_script_json(
@@ -2105,11 +2144,11 @@ def main():
     )
   
     cv2.imwrite(yolo_output_path, yolo_output_image)
-    print(f"\n✓ YOLO output image saved to: {yolo_output_path}")
+    print(f"\n✓ YOLO output image saved to: {yolo_output_path}", flush=True)
   
-    print("\n" + "-"*70)
-    print("Creating White Shapes Image (clean diagram from script.json)")
-    print("-"*70)
+    print("\n" + "-"*70, flush=True)
+    print("Creating White Shapes Image (clean diagram from script.json)", flush=True)
+    print("-"*70, flush=True)
   
     white_image = np.ones((h, w, 3), dtype=np.uint8) * 255
     white_image = draw_from_script_json(
@@ -2121,11 +2160,11 @@ def main():
     )
   
     cv2.imwrite(white_shapes_path, white_image)
-    print(f"\n✓ White shapes image saved to: {white_shapes_path}")
+    print(f"\n✓ White shapes image saved to: {white_shapes_path}", flush=True)
   
-    print("\n" + "-"*70)
-    print("Creating Final Output Image (players with primary/secondary routes and text from script.json)")
-    print("-"*70)
+    print("\n" + "-"*70, flush=True)
+    print("Creating Final Output Image (players with primary/secondary routes and text from script.json)", flush=True)
+    print("-"*70, flush=True)
   
     final_output_image = np.ones((h, w, 3), dtype=np.uint8) * 255
     final_output_image = draw_from_script_json(
@@ -2137,21 +2176,21 @@ def main():
     )
   
     cv2.imwrite(players_only_out_path, final_output_image)
-    print(f"\n✓ Final output image saved to: {players_only_out_path}")
+    print(f"\n✓ Final output image saved to: {players_only_out_path}", flush=True)
   
-    print("\n" + "="*70)
-    print("PROCESSING COMPLETE")
-    print("="*70)
-    print(f"\nJSON Files Generated:")
-    print(f" 1. {sam3_results_json_path}")
-    print(f" 2. {player_json_path}")
-    print(f" 3. {text_json_path}")
-    print(f" 4. {script_json_path}")
-    print(f"\nOutput Images Generated (ALL FROM SCRIPT.JSON):")
-    print(f" 1. {yolo_output_path}")
-    print(f" 2. {white_shapes_path}")
-    print(f" 3. {players_only_out_path}")
-    print("="*70)
+    print("\n" + "="*70, flush=True)
+    print("PROCESSING COMPLETE", flush=True)
+    print("="*70, flush=True)
+    print(f"\nJSON Files Generated:", flush=True)
+    print(f" 1. {sam3_results_json_path}", flush=True)
+    print(f" 2. {player_json_path}", flush=True)
+    print(f" 3. {text_json_path}", flush=True)
+    print(f" 4. {script_json_path}", flush=True)
+    print(f"\nOutput Images Generated (ALL FROM SCRIPT.JSON):", flush=True)
+    print(f" 1. {yolo_output_path}", flush=True)
+    print(f" 2. {white_shapes_path}", flush=True)
+    print(f" 3. {players_only_out_path}", flush=True)
+    print("="*70, flush=True)
 
     # ── Always run Manim after a successful pipeline run ─────────────────────────
     # (server.py relies on the video being produced here so it can serve it back)
@@ -2160,15 +2199,15 @@ def main():
         output_dir=output_dir,
     )
     if video_path:
-        print(f"\n✓ Animation video ready: {video_path}")
+        print(f"\n✓ Animation video ready: {video_path}", flush=True)
         # Write the video path to a known file so server.py can locate it
         # even if the walk order differs across platforms
         video_path_file = os.path.join(output_dir, "video_path.txt")
         with open(video_path_file, "w") as vf:
             vf.write(video_path)
-        print(f"✓ Video path written to: {video_path_file}")
+        print(f"✓ Video path written to: {video_path_file}", flush=True)
     else:
-        print("\n✗ Manim animation failed or was skipped.")
+        print("\n✗ Manim animation failed or was skipped.", flush=True)
 
 
 if __name__ == "__main__":
@@ -2186,5 +2225,5 @@ if __name__ == "__main__":
     if args.run_manim:
         run_manim_animation()
     else:
-        print("\nManim animation not run. Use --run-manim flag to execute it automatically.")
-        print("Or run manually with: manim -pqh manim.py PlayerPlottingScene")
+        print("\nManim animation not run. Use --run-manim flag to execute it automatically.", flush=True)
+        print("Or run manually with: manim -pqh manim.py PlayerPlottingScene", flush=True)

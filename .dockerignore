@@ -1,0 +1,10 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.git/
+*.log
+manim_outputs/
+audio_output/
+media/
+node_modules/

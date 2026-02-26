@@ -1,12 +1,12 @@
 {
   "formation": {
-    "name": "58/59 Under ",
-    "play_name": "Pass Protection",
-    "description": "2 WR, 1 TE, 1 RB 1 FB | Strength : Left",
+    "name": "Stretch bob (38/39) Over G",
+    "play_name": "STRETCH BOB",
+    "description": "2 WR, 1 TE, 1 RB 1 FB | Strength : Left | Run Play",
     "positions": {
       "qb": {
         "x": 0,
-        "y": -11.428537170263795,
+        "y": -10,
         "color": "#B85300",
         "label": "QB",
         "display_label": "CM"
@@ -19,43 +19,43 @@
         "display_label": "TH"
       },
       "fb": {
-        "x": 0,
-        "y": -20.71426858513189,
+        "x": -15,
+        "y": -5.71426858513189,
         "color": "#B85300",
         "label": "FB",
         "display_label": "JB"
       },
       "te": {
-        "x": 18.181818181818173,
-        "y": -1.5,
+        "x": 23.636363636363626,
+        "y": -5.71426858513189,
         "color": "#B85300",
         "label": "TE",
         "display_label": "CH"
       },
       "wr_x": {
-        "x": 31.818181818181827,
-        "y": -5.71426858513189,
+        "x": -31.818181818181817,
+        "y": -1.4857314148681056,
         "color": "#B85300",
         "label": "WR",
         "display_label": "LW"
       },
       "wr_z": {
-        "x": -31.961487603305784,
-        "y": -13.795083932853714,
+        "x": 31.818181818181827,
+        "y": -1.4857314148681056,
         "color": "#B85300",
         "label": "WR",
         "display_label": "BD"
       },
       "ol": [
         {
-          "x": -10.909090909090907,
+          "x": -10,
           "y": -1.5,
           "color": "#B85300",
           "label": "LT",
           "display_label": "JT"
         },
         {
-          "x": -5.454545454545453,
+          "x": -5,
           "y": -1.5,
           "color": "#B85300",
           "label": "LG",
@@ -69,14 +69,14 @@
           "display_label": "BH"
         },
         {
-          "x": 5.454545454545453,
+          "x": 5.000000000000007,
           "y": -1.5,
           "color": "#B85300",
           "label": "RG",
           "display_label": "TK"
         },
         {
-          "x": 10.909090909090914,
+          "x": 10,
           "y": -1.5,
           "color": "#B85300",
           "label": "RT",
@@ -89,110 +89,96 @@
     "positions": {
       "C1": {
         "x": -31.818181818181817,
-        "y": 20,
+        "y": 14.285731414868103,
         "color": "#000080",
         "label": "C",
         "display_label": "JW3"
       },
       "C2": {
         "x": 31.818181818181827,
-        "y": 20,
+        "y": 22.85719424460432,
         "color": "#000080",
         "label": "C",
         "display_label": "CB"
       },
       "FS": {
-        "x": -8.181818181818187,
+        "x": -11.818181818181813,
         "y": 32.5,
         "color": "#000080",
         "label": "FS",
         "display_label": "DS"
       },
       "SS": {
-        "x": 13.636363636363633,
-        "y": 32.5,
+        "x": 23.636363636363626,
+        "y": 37.14285371702638,
         "color": "#000080",
         "label": "SS",
         "display_label": "KH2"
       },
       "E1": {
-        "x": -13.636363636363633,
+        "x": -12.5,
         "y": 7.5,
         "color": "#000080",
         "label": "E",
         "display_label": "TR"
       },
       "E2": {
-        "x": 13.636363636363633,
+        "x": 12.5,
         "y": 7.5,
         "color": "#000080",
         "label": "E",
         "display_label": "BN"
       },
       "W": {
-        "x": -2.7272727272727266,
-        "y": 17.571462829736213,
+        "x": 16.363636363636374,
+        "y": 22.85719424460432,
         "color": "#000080",
         "label": "W",
         "display_label": "WC"
       },
       "S": {
-        "x": 21.818181818181813,
-        "y": 7.514268585131894,
+        "x": -20,
+        "y": 18.571462829736205,
         "color": "#000080",
         "label": "S",
         "display_label": "MH"
       },
       "M": {
-        "x": 8.18181818181818,
-        "y": 17.5,
+        "x": 1.3636363636363669,
+        "y": 28.57146282973621,
         "color": "#000080",
         "label": "M",
-        "display_label": "GS"
+        "display_label": "AC2"
       },
       "N": {
-        "x": 2.7272727272727195,
+        "x": 1.3636363636363669,
         "y": 7.5,
         "color": "#000080",
         "label": "N",
-        "display_label": "LT"
+        "display_label": "RJ2"
       },
       "T": {
-        "x": -8.181818181818187,
+        "x": -7.272727272727273,
         "y": 7.5,
         "color": "#000080",
         "label": "T",
-        "display_label": "CH2"
+        "display_label": "CW4"
       }
     }
   },
   "routes": {
     "rb": {
-      "type": "protection",
+      "type": "route",
       "color": "#4ECDC4",
-      "label": "Block",
+      "label": "Stretch Run",
       "steps": [
         {
-          "up": 16,
-          "right": 9,
+          "up": 4,
+          "right": 8,
           "style": "sharp"
         }
       ],
-      "blocking_assignment": {
-        "defenders": [
-          "SS"
-        ],
-        "draw_defender_paths": false,
-        "defender_paths": {
-          "SS": {
-            "steps": [
-              {
-                "style": "sharp"
-              }
-            ]
-          }
-        }
-      },
+      "blocking_assignment": null,
       "secondary_options": []
     },
     "fb": {
@@ -201,32 +187,31 @@
       "label": "Block",
       "steps": [
         {
-          "up": 12,
-          "left": 3,
+          "right": 22,
+          "style": "sharp"
+        },
+        {
+          "up": 3,
+          "right": 3,
+          "style": "sharp"
+        },
+        {
+          "up": 6,
+          "right": 4,
           "style": "sharp"
         }
       ],
       "blocking_assignment": {
-        "defenders": [
-          "FS",
-          "C1",
-          "W"
-        ],
-        "branch_point": {
-          "x": 0,
-          "y": 5
-        },
-        "draw_defender_paths": false,
-        "defender_paths": {
-          "FS": {
-            "steps": [
-              {
-                "down": 5,
-                "left": 19,
-                "style": "sharp"
-              }
-            ]
-          }
+        "defender": "W",
+        "draw_defender_path": false,
+        "defender_path": {
+          "steps": [
+            {
+              "down": 5,
+              "left": 19,
+              "style": "sharp"
+            }
+          ]
         }
       },
       "secondary_options": []
@@ -235,6 +220,235 @@
       "type": "protection",
       "color": "#6A0572",
       "label": "Reach Block",
+      "steps": [
+        {
+          "up": 7,
+          "style": "sharp"
+        },
+        {
+          "up": 0.5,
+          "left": 1,
+          "style": "slow_route"
+        },
+        {
+          "up": 0.5,
+          "right": 2,
+          "style": "slow_route"
+        },
+        {
+          "up": 0.5,
+          "left": 2,
+          "style": "slow_route"
+        },
+        {
+          "up": 0.5,
+          "right": 1,
+          "style": "slow_route"
+        },
+        {
+          "up": 5,
+          "style": "sharp"
+        }
+      ],
+      "blocking_assignment": {
+        "defender": "SS",
+        "draw_defender_path": false,
+        "defender_path": {
+          "steps": [
+            {
+              "left": 3,
+              "style": "sharp"
+            }
+          ]
+        }
+      },
+      "secondary_options": []
+    },
+    "wr_x": {
+      "type": "protection",
+      "color": "#6A0572",
+      "label": "Crack Block",
+      "steps": [
+        {
+          "up": 5,
+          "style": "sharp"
+        }
+      ],
+      "blocking_assignment": {
+        "defender": "C1",
+        "draw_defender_path": false,
+        "defender_path": {
+          "steps": [
+            {
+              "style": "sharp"
+            }
+          ]
+        }
+      },
+      "secondary_options": []
+    },
+    "wr_z": {
+      "type": "protection",
+      "color": "#6A0572",
+      "label": "Stalk Block",
+      "steps": [
+        {
+          "up": 9,
+          "style": "sharp"
+        }
+      ],
+      "blocking_assignment": {
+        "defender": "C2",
+        "draw_defender_path": false,
+        "defender_path": null
+      },
+      "secondary_options": []
+    },
+    "qb": {
+      "type": "route",
+      "color": "#B85300",
+      "label": "Bootleg Right",
+      "steps": [
+        {
+          "style": "smooth"
+        }
+      ],
+      "blocking_assignment": null,
+      "secondary_options": []
+    },
+    "ol_0": {
+      "type": "protection",
+      "color": "#B85300",
+      "label": "BLOCK",
+      "steps": [
+        {
+          "up": 1,
+          "right": 2,
+          "style": "sharp"
+        },
+        {
+          "up": 1,
+          "style": "sharp"
+        }
+      ],
+      "blocking_assignment": {
+        "defender": "T",
+        "draw_defender_path": false,
+        "defender_path": {
+          "steps": [
+            {
+              "style": "sharp"
+            }
+          ]
+        }
+      },
+      "secondary_options": []
+    },
+    "ol_1": {
+      "type": "protection",
+      "color": "#B85300",
+      "label": " Block",
+      "steps": [
+        {
+          "up": 1,
+          "right": 2,
+          "style": "sharp"
+        },
+        {
+          "up": 6,
+          "right": 1,
+          "style": "sharp"
+        },
+        {
+          "up": 2,
+          "left": 2,
+          "style": "sharp"
+        }
+      ],
+      "blocking_assignment": {
+        "defender": "S",
+        "draw_defender_path": true,
+        "defender_path": {
+          "steps": [
+            {
+              "up": 2,
+              "right": 14,
+              "style": "sharp"
+            }
+          ]
+        }
+      },
+      "secondary_options": []
+    },
+    "ol_2": {
+      "type": "protection",
+      "color": "#B85300",
+      "label": "Block",
+      "steps": [
+        {
+          "up": 1,
+          "right": 2,
+          "style": "sharp"
+        },
+        {
+          "up": 1,
+          "style": "sharp"
+        }
+      ],
+      "blocking_assignment": {
+        "defender": "N",
+        "draw_defender_path": false,
+        "defender_path": {
+          "steps": [
+            {
+              "left": 1,
+              "style": "sharp"
+            }
+          ]
+        }
+      },
+      "secondary_options": []
+    },
+    "ol_3": {
+      "type": "protection",
+      "color": "#B85300",
+      "label": "BLOCK",
+      "steps": [
+        {
+          "up": 1,
+          "right": 2,
+          "style": "sharp"
+        },
+        {
+          "up": 7,
+          "right": 3,
+          "style": "sharp"
+        },
+        {
+          "up": 1,
+          "left": 1,
+          "style": "sharp"
+        }
+      ],
+      "blocking_assignment": {
+        "defender": "M",
+        "draw_defender_path": true,
+        "defender_path": {
+          "steps": [
+            {
+              "down": 1,
+              "right": 7,
+              "style": "sharp"
+            }
+          ]
+        }
+      },
+      "secondary_options": []
+    },
+    "ol_4": {
+      "type": "protection",
+      "color": "#B85300",
+      "label": "RT Block",
       "steps": [
         {
           "up": 1,
@@ -247,162 +461,17 @@
         }
       ],
       "blocking_assignment": {
-        "defenders": [
-          "S"
-        ],
-        "branch_point": {
-          "x": 0,
-          "y": 5
-        },
-        "draw_defender_paths": false,
-        "defender_paths": {
-          "S": {
-            "steps": [
-              {
-                "left": 3,
-                "style": "sharp"
-              }
-            ]
-          }
-        }
-      },
-      "secondary_options": []
-    },
-    "wr_x": {
-      "type": "route",
-      "color": "#6A0572",
-      "label": "Run Route",
-      "steps": [
-        {
-          "up": 7,
-          "style": "sharp"
-        },
-        {
-          "up": 10,
-          "left": 7,
-          "style": "sharp"
-        }
-      ],
-      "blocking_assignment": null,
-      "secondary_options": []
-    },
-    "wr_z": {
-      "type": "route",
-      "color": "#6A0572",
-      "label": "Run Route",
-      "secondary_options": [
-        {
-          "branch_point": 1,
-          "color": "#6A0572",
-          "style": "dotted",
-          "condition": "coverage",
+        "defender": "E2",
+        "draw_defender_path": false,
+        "defender_path": {
           "steps": [
             {
-              "up": 1.5,
-              "right": 7.3,
-              "style": "sharp"
-            },
-            {
-              "down": 1.8,
-              "left": 0.6,
+              "right": 2,
               "style": "sharp"
             }
           ]
         }
-      ],
-      "steps": [
-        {
-          "up": 10,
-          "right": 0.7,
-          "style": "sharp"
-        },
-        {
-          "up": 7.9,
-          "right": 8.2,
-          "style": "sharp"
-        }
-      ]
-    },
-    "qb": {
-      "type": "route",
-      "color": "#B85300",
-      "label": "",
-      "steps": [
-        {
-          "down": 1,
-          "style": "sharp"
-        }
-      ],
-      "blocking_assignment": null,
-      "secondary_options": []
-    },
-    "ol_0": {
-      "type": "protection",
-      "color": "#B85300",
-      "label": "BLOCK",
-      "steps": [
-        {
-          "down": 2,
-          "right": 1,
-          "style": "sharp"
-        }
-      ],
-      "blocking_assignment": null,
-      "secondary_options": []
-    },
-    "ol_1": {
-      "type": "protection",
-      "color": "#B85300",
-      "label": " Block",
-      "steps": [
-        {
-          "down": 1,
-          "right": 1,
-          "style": "sharp"
-        }
-      ],
-      "blocking_assignment": null,
-      "secondary_options": []
-    },
-    "ol_2": {
-      "type": "protection",
-      "color": "#B85300",
-      "label": "Block",
-      "steps": [
-        {
-          "down": 1,
-          "style": "sharp"
-        }
-      ],
-      "blocking_assignment": null,
-      "secondary_options": []
-    },
-    "ol_3": {
-      "type": "protection",
-      "color": "#B85300",
-      "label": "BLOCK",
-      "steps": [
-        {
-          "down": 1,
-          "left": 1,
-          "style": "sharp"
-        }
-      ],
-      "blocking_assignment": null,
-      "secondary_options": []
-    },
-    "ol_4": {
-      "type": "protection",
-      "color": "#B85300",
-      "label": "RT Block",
-      "steps": [
-        {
-          "down": 2,
-          "left": 1,
-          "style": "sharp"
-        }
-      ],
-      "blocking_assignment": null,
+      },
       "secondary_options": []
     },
     "te_t": {
@@ -444,23 +513,23 @@
       }
     ]
   },
-  "read_progression": [],
+  "read_progression": [
+    {
+      "player": "rb",
+      "route": "stretch_run",
+      "color": "#4ECDC4",
+      "label": "Handoff option"
+    }
+  ],
   "run_lanes": {
     "primary": [
-      "wr_z",
-      "wr_x"
+      "rb"
     ]
   },
   "passing_options": {
     "primary": [
-      "wr_x",
-      "wr_z"
+      "rb"
     ],
     "checkdowns": []
-  },
-  "qb_options": {
-    "passing_primary": true,
-    "passing_checkdown": true,
-    "qb_scramble": false
   }
 }

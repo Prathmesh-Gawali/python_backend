@@ -34,6 +34,7 @@ glcontext==3.0.0
 gradio==6.3.0
 gradio_client==2.0.3
 groovy==0.1.2
+gunicorn==23.0.0
 gTTS==2.5.4
 h11==0.16.0
 hf-xet==1.2.0
@@ -88,8 +89,6 @@ pydub==0.25.1
 pyglet==2.1.12
 pyglm==2.8.3
 Pygments==2.19.2
-pyobjc-core==12.1
-pyobjc-framework-Cocoa==12.1
 pyparsing==3.3.1
 pypdfium2==5.3.0
 python-bidi==0.6.7
@@ -121,8 +120,9 @@ sympy==1.14.0
 tifffile==2026.1.14
 tokenizers==0.22.2
 tomlkit==0.13.3
-torch==2.9.1
-torchvision==0.24.1
+torch==2.7.1
+torchvision==0.22.1
+torchaudio==2.7.1
 tqdm==4.67.1
 transformers @ git+https://github.com/huggingface/transformers@24807bfcf4a21286fa2a7e728f381ddaaca7bbc7
 typer==0.21.1
