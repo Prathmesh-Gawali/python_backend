@@ -1,7 +1,6 @@
 # ─── Base image: Ubuntu 22.04 ────────────────────────────────────────────────
 FROM ubuntu:22.04
 
-# Avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Kolkata
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -49,12 +48,12 @@ RUN python3.13 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN pip install --upgrade pip setuptools wheel
 
-# ─── PyTorch with CUDA 11.8 (for g4dn.xlarge T4 GPU) ──────────────────────────
+# ─── PyTorch CPU only ─────────────────────────────────────────────────────────
 RUN pip install --no-cache-dir \
-    torch==2.7.1+cu118 \
-    torchvision==0.22.1+cu118 \
-    torchaudio==2.7.1+cu118 \
-    --index-url https://download.pytorch.org/whl/cu118
+    torch==2.7.1+cpu \
+    torchvision==0.22.1 \
+    torchaudio==2.7.1 \
+    --index-url https://download.pytorch.org/whl/cpu
 
 # ─── Python dependencies from requirements.txt (filtered) ─────────────────────
 COPY requirements.txt /tmp/requirements.txt
@@ -98,10 +97,8 @@ ENV SAM3_MODEL_PATH=/app/models/sam3
 ENV YOLO_MODEL_PATH=/app/models/player/circle_square.pt
 ENV YOLO_ALPHABET_MODEL_PATH=/app/models/player/alphabets.pt
 
-# ─── Ensure Python output is unbuffered ──────────────────────────────────────
 ENV PYTHONUNBUFFERED=1
 
-# ─── Gunicorn with access logs ────────────────────────────────────────────────
 EXPOSE 5050
 CMD ["gunicorn", \
      "--bind", "0.0.0.0:5050", \

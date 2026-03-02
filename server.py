@@ -63,10 +63,6 @@ def run_strategy():
         print(f"[run-strategy] selectedStrategy: {json.dumps(selected_strategy, indent=2)}")
 
         # ── Map strategy type → animator script + class name + output folder ──
-        # type values from the React app:
-        #   "passConcepts"    → PC animator
-        #   "passProtections" → PP animator
-        #   "run"             → RP animator
         if strategy_type == "passConcepts":
             animator_script = os.path.join(BASE_DIR, "animators", "animate_play_pc.py")
             manim_class     = "AnimatePlayPC"
@@ -96,31 +92,65 @@ def run_strategy():
             print(f"[run-strategy] Cleared output folder: {output_folder}")
         os.makedirs(output_folder, exist_ok=True)
 
-        # ── 3. Run the manim animator ─────────────────────────────────────────
-        #    -qh = high quality render (matches config.pixel_height = 1440,
-        #           config.frame_rate = 30 inside animate_play_*.py → 1440p30)
-        #    We run from BASE_DIR so relative paths in the scripts resolve correctly.
+        # ── 3. Run the manim animator with real‑time log streaming ────────────
         print(f"[run-strategy] Running: {MANIM_BIN} -qh {animator_script} {manim_class}")
-        result = subprocess.run(
+
+        env = os.environ.copy()
+        env["PYTHONUNBUFFERED"] = "1"   # force line‑buffered output
+
+        process = subprocess.Popen(
             [MANIM_BIN, "-qh", animator_script, manim_class],
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,   # merge stderr into stdout
             text=True,
+            bufsize=1,
             cwd=BASE_DIR,
-            timeout=1800,   # 30-min timeout for long renders
+            env=env,
         )
 
-        if result.returncode != 0:
-            print("=== MANIM STDOUT ===")
-            print(result.stdout[-2000:])
-            print("=== MANIM STDERR ===")
-            print(result.stderr[-4000:])
+        def reader(proc, q):
+            for line in proc.stdout:
+                q.put(line)
+            proc.wait()
+            q.put(None)
+
+        output_queue = queue.Queue()
+        thread = threading.Thread(target=reader, args=(process, output_queue))
+        thread.daemon = True
+        thread.start()
+
+        lines = []
+        start_time = time.time()
+        timeout = 1800   # 30 minutes
+
+        while True:
+            try:
+                line = output_queue.get(timeout=0.5)
+                if line is None:
+                    break
+                lines.append(line)
+                print(f"[animate_play_rp] {line.rstrip()}")   # prefix each line for clarity
+                sys.stdout.flush()
+            except queue.Empty:
+                if time.time() - start_time > timeout:
+                    process.terminate()
+                    try:
+                        process.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                    return jsonify({"error": "Render timed out (>30 min)"}), 500
+                continue
+
+        thread.join()
+
+        if process.returncode != 0:
+            error_output = "".join(lines[-2000:])
             return jsonify({
                 "error":   "Manim rendering failed",
-                "details": result.stderr[-4000:]
+                "details": error_output
             }), 500
 
         # ── 4. Find the rendered .mp4 inside the output folder ───────────────
-        # Expected path: media/videos/animate_play_pc/1440p30/AnimatePlayPC.mp4
         video_path = None
         for root, _, files in os.walk(output_folder):
             for fname in files:
@@ -146,15 +176,19 @@ def run_strategy():
         print(f"[run-strategy] Render complete: {video_path}")
 
         # ── 5. Return the video file to the browser ───────────────────────────
-        return send_file(
-            video_path,
+        with open(video_path, "rb") as f:
+            video_bytes = f.read()
+        
+        from flask import Response
+        response = Response(
+            video_bytes,
+            status=200,
             mimetype="video/mp4",
-            as_attachment=False,
-            download_name=f"{manim_class}.mp4",
         )
+        response.headers["Content-Disposition"] = f'inline; filename="{manim_class}.mp4"'
+        response.headers["Content-Length"] = len(video_bytes)
+        return response
 
-    except subprocess.TimeoutExpired:
-        return jsonify({"error": "Render timed out (>30 min)"}), 500
     except Exception as e:
         import traceback
         print(f"[run-strategy] Exception: {e}")

@@ -25,6 +25,7 @@ class VideoStatus:
 
 class VideoMobject(ImageMobject):
     def __init__(self, filename=None, imageops=None, speed=1.0, loop=False, **kwargs):
+        print("[animate_play_pp] Initializing VideoMobject for", filename)
         self.filename = filename
         self.imageops = imageops
         self.speed = speed
@@ -39,7 +40,7 @@ class VideoMobject(ImageMobject):
         # Initialize video capture
         self.status.videoObject = cv2.VideoCapture(filename)
         if not self.status.videoObject.isOpened():
-            print(f"Error: Could not open video file {filename}")
+            print(f"[animate_play_pp] Error: Could not open video file {filename}")
             return
 
         # Read first frame to initialize the image
@@ -59,8 +60,9 @@ class VideoMobject(ImageMobject):
             # Update the pixel array with the actual video frame
             self.pixel_array = np.array(img)
             self.add_updater(self.videoUpdater)
+            print("[animate_play_pp] VideoMobject initialized successfully")
         else:
-            print(f"Error: Could not read first frame from video file {filename}")
+            print(f"[animate_play_pp] Error: Could not read first frame from video file {filename}")
 
     def videoUpdater(self, mobj, dt):
         if dt == 0:
@@ -90,6 +92,7 @@ class VideoMobject(ImageMobject):
 
 class AnimatePlayPP(Scene):
     def __init__(self, **kwargs):
+        print("[animate_play_pp] Entering __init__")
         super().__init__(**kwargs)
         self.audio_durations = {}
         self.yard_to_point = None
@@ -98,16 +101,20 @@ class AnimatePlayPP(Scene):
         animation_data_path = os.path.normpath(
             os.path.join(os.path.dirname(__file__), '..', 'animation_data.json')
         )
-        print(f"Loading animation data from: {animation_data_path}")
+        print(f"[animate_play_pp] Loading animation data from: {animation_data_path}")
         with open(animation_data_path, 'r') as f:
             self.animation_data = json.load(f)
+        print("[animate_play_pp] animation_data loaded successfully")
 
         # Extract formation name from file path - kept for potential use but not for audio
         current_file_path = os.path.abspath(__file__)
         formation_dir = os.path.basename(os.path.dirname(current_file_path))
         self.formation_name = formation_dir  # Use original: "(Blue)_R_Twin_K93_Panther"
+        print(f"[animate_play_pp] formation_name: {self.formation_name}")
+        print("[animate_play_pp] Exiting __init__")
 
     def construct(self):
+        print("[animate_play_pp] Entering construct")
         self.preload_audio_durations()
 
         field, yard_scale, yard_to_point = self.setup_field()
@@ -116,11 +123,14 @@ class AnimatePlayPP(Scene):
         players = self.setup_players(yard_to_point, yard_scale)
 
         # Play each segment in sequence matching the audio script
+        print("[animate_play_pp] Starting segment playback loop")
         for segment in self.audio_durations['segments']:
             self.play_segment(segment["name"], players, field)
+        print("[animate_play_pp] Exiting construct")
 
     def play_whistle_sound(self):
         """Play whistle sound during snap"""
+        print("[animate_play_pp] play_whistle_sound called")
         whistle_sound_path = os.path.join(
             os.path.dirname(__file__),
             '..', 'shared_assets', 'whistle.mp3'
@@ -129,14 +139,16 @@ class AnimatePlayPP(Scene):
 
         if os.path.exists(whistle_sound_path):
             self.add_sound(whistle_sound_path)
+            print(f"[animate_play_pp] Added whistle sound from {whistle_sound_path}")
         else:
-            print(f"Whistle sound file not found: {whistle_sound_path}")
+            print(f"[animate_play_pp] Whistle sound file not found: {whistle_sound_path}")
 
     def play_tackle_sound(self):
         """Play tackle sound for block assignments — once per segment"""
         if getattr(self, '_tackle_sound_played', False):
             return
         self._tackle_sound_played = True
+        print("[animate_play_pp] play_tackle_sound called (first time in this segment)")
         tackle_sound_path = os.path.join(
             os.path.dirname(__file__),
             '..', 'shared_assets', 'protection.mp3'
@@ -145,14 +157,16 @@ class AnimatePlayPP(Scene):
 
         if os.path.exists(tackle_sound_path):
             self.add_sound(tackle_sound_path)
+            print(f"[animate_play_pp] Added tackle sound from {tackle_sound_path}")
         else:
-            print(f"Tackle sound file not found: {tackle_sound_path}")
+            print(f"[animate_play_pp] Tackle sound file not found: {tackle_sound_path}")
 
     def play_chase_sound(self):
         """Play chase sound for route animations — once per segment"""
         if getattr(self, '_chase_sound_played', False):
             return
         self._chase_sound_played = True
+        print("[animate_play_pp] play_chase_sound called (first time in this segment)")
         chase_sound_path = os.path.join(
             os.path.dirname(__file__),
             '..', 'shared_assets', 'chase.mp3'
@@ -161,14 +175,16 @@ class AnimatePlayPP(Scene):
 
         if os.path.exists(chase_sound_path):
             self.add_sound(chase_sound_path)
+            print(f"[animate_play_pp] Added chase sound from {chase_sound_path}")
         else:
-            print(f"Chase sound file not found: {chase_sound_path}")
+            print(f"[animate_play_pp] Chase sound file not found: {chase_sound_path}")
 
     def play_protection_sound(self):
         """Play protection sound for protection animations — once per segment"""
         if getattr(self, '_protection_sound_played', False):
             return
         self._protection_sound_played = True
+        print("[animate_play_pp] play_protection_sound called (first time in this segment)")
         protection_sound_path = os.path.join(
             os.path.dirname(__file__),
             '..', 'shared_assets', 'protection.mp3'
@@ -177,14 +193,16 @@ class AnimatePlayPP(Scene):
 
         if os.path.exists(protection_sound_path):
             self.add_sound(protection_sound_path)
+            print(f"[animate_play_pp] Added protection sound from {protection_sound_path}")
         else:
-            print(f"Protection sound file not found: {protection_sound_path}")
+            print(f"[animate_play_pp] Protection sound file not found: {protection_sound_path}")
 
     def play_blocking_sound(self):
         """Play blocking sound for run blocking animations — once per segment"""
         if getattr(self, '_blocking_sound_played', False):
             return
         self._blocking_sound_played = True
+        print("[animate_play_pp] play_blocking_sound called (first time in this segment)")
         blocking_sound_path = os.path.join(
             os.path.dirname(__file__),
             '..', 'shared_assets', 'protection.mp3'
@@ -193,16 +211,23 @@ class AnimatePlayPP(Scene):
 
         if os.path.exists(blocking_sound_path):
             self.add_sound(blocking_sound_path)
+            print(f"[animate_play_pp] Added blocking sound from {blocking_sound_path}")
         else:
-            print(f"Blocking sound file not found: {blocking_sound_path}")
+            print(f"[animate_play_pp] Blocking sound file not found: {blocking_sound_path}")
 
     def preload_audio_durations(self):
+        print("[animate_play_pp] Entering preload_audio_durations")
         # Load audio script with correct path (parent directory)
         audio_script_path = os.path.join(os.path.dirname(__file__), '..', 'audio_script.json')
+        audio_script_path = os.path.normpath(audio_script_path)
+        print(f"[animate_play_pp] Loading audio durations from: {audio_script_path}")
         with open(audio_script_path, 'r') as f:
             self.audio_durations = json.load(f)
+        print(f"[animate_play_pp] Loaded {len(self.audio_durations.get('segments', []))} segments")
+        print("[animate_play_pp] Exiting preload_audio_durations")
 
     def play_segment(self, segment_name, players, field=None):
+        print(f"[animate_play_pp] Entering play_segment: '{segment_name}'")
         # Reset sound-played flags for each new segment
         self._tackle_sound_played = False
         self._chase_sound_played = False
@@ -210,55 +235,74 @@ class AnimatePlayPP(Scene):
         self._blocking_sound_played = False
         # Play audio for this segment
         audio_duration = self.play_audio(segment_name)
+        print(f"[animate_play_pp] audio_duration for '{segment_name}': {audio_duration}")
 
         # Execute the appropriate animation for this segment
         if segment_name == "formation_intro":
+            print("[animate_play_pp] Calling formation_intro")
             self.formation_intro(players, field, audio_duration)
         elif segment_name == "snap":
+            print("[animate_play_pp] Calling snap_animation")
             self.snap_animation(players, audio_duration)
         elif segment_name == "protection":
             # Check if it's run blocking or pass protection
             protection_scheme = self.animation_data["protection"]["scheme"]
+            print(f"[animate_play_pp] protection_scheme: {protection_scheme}")
             if protection_scheme == "run_blocking":
+                print("[animate_play_pp] Calling offensive_line_protection_enhanced")
                 self.offensive_line_protection_enhanced(players, audio_duration)
             else:
+                print("[animate_play_pp] Calling pass_protection_animation")
                 self.pass_protection_animation(players, audio_duration)
         elif segment_name.endswith("_route"):
             # Check if this player should be animated in protection phase or route phase
             player_pos = segment_name.replace('_route', '')
             route_data = self.get_route_data(player_pos)
+            print(f"[animate_play_pp] Processing route for player_pos='{player_pos}'")
 
             # For pass protection, only animate non-blocking players in route phase
             protection_scheme = self.animation_data["protection"]["scheme"]
             if protection_scheme == "pass_protection":
                 if route_data and route_data.get("blocking_assignment"):
+                    print(f"[animate_play_pp] '{player_pos}' has blocking assignment, skipping route animation in this phase")
                     # Skip - these were animated in protection phase
                     self.wait(audio_duration)
                 else:
-                    # Animate non-blocking routes
+                    print(f"[animate_play_pp] Calling player_route_animation for '{player_pos}'")
                     self.player_route_animation(players, segment_name, audio_duration)
             else:
                 # Run play logic (original)
                 if route_data and route_data.get("type") == "protection" and route_data.get("blocking_assignment"):
+                    print(f"[animate_play_pp] Calling blocking_assignment_animation for '{player_pos}'")
                     self.blocking_assignment_animation(players, player_pos, audio_duration)
                 else:
+                    print(f"[animate_play_pp] Calling player_route_animation for '{player_pos}'")
                     self.player_route_animation(players, segment_name, audio_duration)
         elif segment_name.startswith("qb_read"):
+            print("[animate_play_pp] Calling qb_read_animation")
             self.qb_read_animation(players, segment_name, audio_duration)
         elif "passing" in segment_name:
             # Check if it's a run play to use run options animation
             if self.animation_data["protection"]["scheme"] == "run_blocking":
                 if "primary" in segment_name:
+                    print("[animate_play_pp] Calling run_options_animation (primary)")
                     self.run_options_animation(players, "primary", audio_duration)
                 elif "checkdowns" in segment_name:
+                    print("[animate_play_pp] Calling handoff_animation")
                     self.handoff_animation(players, audio_duration)
             else:
+                print("[animate_play_pp] Calling passing_options_animation")
                 self.passing_options_animation(players, segment_name, audio_duration)
         elif segment_name == "qb_dropback":
+            print("[animate_play_pp] Calling qb_dropback_animation")
             self.qb_dropback_animation(players, audio_duration)
+        else:
+            print(f"[animate_play_pp] Unhandled segment: {segment_name}")
+        print(f"[animate_play_pp] Exiting play_segment: '{segment_name}'")
 
     def get_route_data(self, player_pos):
         """Helper function to get route data for a player"""
+        print(f"[animate_play_pp] get_route_data called for '{player_pos}'")
         routes = self.animation_data.get("routes", {})
         if player_pos in routes:
             return routes[player_pos]
@@ -279,16 +323,18 @@ class AnimatePlayPP(Scene):
 
         if os.path.exists(audio_path):
             self.add_sound(audio_path)
+            print(f"[animate_play_pp] Added audio for '{segment_name}' from {audio_path}")
             # Find the segment duration from audio_script
             for segment in self.audio_durations['segments']:
                 if segment['name'] == segment_name:
                     return segment.get('duration', 0)
             return 0
         else:
-            print(f"Audio file not found for {segment_name}: {audio_path}")
+            print(f"[animate_play_pp] Audio file not found for {segment_name}: {audio_path}")
             return 0
 
     def setup_field(self):
+        print("[animate_play_pp] Entering setup_field")
         # Correct path for field image (parent directory)
         field_img = os.path.join(
             os.path.dirname(__file__),
@@ -298,7 +344,7 @@ class AnimatePlayPP(Scene):
 
         # If the field image doesn't exist, create a simple green rectangle
         if not os.path.exists(field_img):
-            print(f"Field image not found: {field_img}. Using placeholder.")
+            print(f"[animate_play_pp] Field image not found: {field_img}. Using placeholder.")
             field = Rectangle(
                 width=config.frame_width * 0.9,
                 height=config.frame_height * 0.6,
@@ -317,6 +363,7 @@ class AnimatePlayPP(Scene):
         field_width = field.width
         field_center = field.get_center()
         yard_scale = field_width / 100
+        print(f"[animate_play_pp] yard_scale = {yard_scale}")
 
         def yard_to_point(x_yards, y_yards):
             x = field_center[0] + (x_yards * yard_scale)
@@ -332,10 +379,12 @@ class AnimatePlayPP(Scene):
             stroke_width=yard_scale * 0.2  # Increased stroke width
         )
         self.add(scrimmage_line)
+        print("[animate_play_pp] Exiting setup_field")
 
         return field, yard_scale, yard_to_point
 
     def setup_players(self, yard_to_point, yard_scale):
+        print("[animate_play_pp] Entering setup_players")
         def create_player(position, x_yards, y_yards, team="offense", color_override=None, label=None):
             point = yard_to_point(x_yards, y_yards)
             team_colors = {"offense": "#B85300", "defense": "#000080"}
@@ -385,18 +434,18 @@ class AnimatePlayPP(Scene):
         if "fb" in formation:
             fb = create_player("F", formation["fb"]["x"], formation["fb"]["y"], "offense",
                                formation["fb"].get("color", None), formation["fb"].get("display_label", None))
-            print("DEBUG: Created FB player")
+            print("[animate_play_pp] DEBUG: Created FB player")
         else:
-            print("DEBUG: No FB in formation")
+            print("[animate_play_pp] DEBUG: No FB in formation")
 
         # Check if TE_T exists in formation
         te_t = VGroup()
         if "te_t" in formation:
             te_t = create_player("T", formation["te_t"]["x"], formation["te_t"]["y"], "offense",
                                  formation["te_t"].get("color", None), formation["te_t"].get("display_label", None))
-            print("DEBUG: Created TE_T player")
+            print("[animate_play_pp] DEBUG: Created TE_T player")
         else:
-            print("DEBUG: No TE_T in formation")
+            print("[animate_play_pp] DEBUG: No TE_T in formation")
 
         te = create_player("T", formation["te"]["x"], formation["te"]["y"], "offense",
                            formation["te"].get("color", None), formation["te"].get("display_label", None))
@@ -444,10 +493,10 @@ class AnimatePlayPP(Scene):
         offense = VGroup(offensive_line, qb, rb, te, x_wr, z_wr)
         if len(fb) > 0:  # Add FB if it exists
             offense.add(fb)
-            print("DEBUG: Added FB to offense group")
+            print("[animate_play_pp] DEBUG: Added FB to offense group")
         if len(te_t) > 0:  # Only add te_t if it exists
             offense.add(te_t)
-            print("DEBUG: Added TE_T to offense group")
+            print("[animate_play_pp] DEBUG: Added TE_T to offense group")
 
         self.add(offense, defensive_players, football)
 
@@ -463,17 +512,19 @@ class AnimatePlayPP(Scene):
         # Add FB if it exists
         if len(fb) > 0:
             players_dict["fb"] = fb
-            print("DEBUG: Added FB to players_dict")
+            print("[animate_play_pp] DEBUG: Added FB to players_dict")
 
         # Add TE_T if it exists
         if len(te_t) > 0:
             players_dict["te_t"] = te_t
-            print("DEBUG: Added TE_T to players_dict")
+            print("[animate_play_pp] DEBUG: Added TE_T to players_dict")
 
-        print(f"DEBUG: Final players_dict keys: {list(players_dict.keys())}")
+        print(f"[animate_play_pp] DEBUG: Final players_dict keys: {list(players_dict.keys())}")
+        print("[animate_play_pp] Exiting setup_players")
         return players_dict
 
     def create_football(self, point, scale):
+        print("[animate_play_pp] create_football called")
         football = Circle(
             radius=scale * 0.6,  # Reduced size
             color="#D37F00",
@@ -498,12 +549,13 @@ class AnimatePlayPP(Scene):
 
     def create_route_path(self, path_points, route_style="curved", sharp_points=None):
         """Create a route path with the specified style (curved, sharp, or mixed)"""
+        print(f"[animate_play_pp] create_route_path with style {route_style}, {len(path_points)} points")
         path = VMobject()
 
         # CRITICAL FIX: Ensure we have at least 2 points for a valid path
         if len(path_points) < 2:
             print(
-                f"Warning: Insufficient path points ({len(path_points)}). Creating default path.")
+                f"[animate_play_pp] Warning: Insufficient path points ({len(path_points)}). Creating default path.")
             # Create a minimal valid path with 2 points
             if len(path_points) == 1:
                 path_points.append(path_points[0] + np.array([0.1, 0.1, 0]))
@@ -571,7 +623,7 @@ class AnimatePlayPP(Scene):
 
         # CRITICAL FIX: Validate the path has points before returning
         if path.has_no_points():
-            print("Warning: Created path has no points. Creating fallback path.")
+            print("[animate_play_pp] Warning: Created path has no points. Creating fallback path.")
             # Create a simple fallback path
             fallback_points = [np.array([0, 0, 0]), np.array([1, 1, 0])]
             path.set_points_smoothly(fallback_points)
@@ -580,6 +632,7 @@ class AnimatePlayPP(Scene):
 
     def create_throw_indicator(self, start_pos, end_pos):
         """Create a visual indicator for QB throw"""
+        print("[animate_play_pp] create_throw_indicator called")
         throw_line = DashedLine(start_pos, end_pos, color=YELLOW, stroke_width=4)
         throw_circle = Circle(radius=0.2, color=YELLOW, stroke_width=3)
         throw_circle.move_to(end_pos)
@@ -588,6 +641,7 @@ class AnimatePlayPP(Scene):
 
     def create_protection_indicator(self, path_points):
         """Create a protection indicator (short perpendicular line) at the end of a protection route"""
+        print("[animate_play_pp] create_protection_indicator called")
         if len(path_points) < 2:
             return VGroup()
 
@@ -618,6 +672,7 @@ class AnimatePlayPP(Scene):
 
     def create_blocking_indicator(self, defender_pos):
         """Create a visual indicator for blocking assignment - UPDATED: removed dotted line, smaller blue circle"""
+        print("[animate_play_pp] create_blocking_indicator called")
         # Create a blue circle around the defender with reduced radius
         defender_circle = Circle(
             radius=0.3, color=BLUE, stroke_width=3)  # Reduced radius from 0.5 to 0.3, changed color to BLUE
@@ -627,6 +682,7 @@ class AnimatePlayPP(Scene):
 
     def create_clash_effect(self, position):
         """Create a clash effect when blocker and defender meet"""
+        print("[animate_play_pp] create_clash_effect called")
         clash_circle = Circle(radius=0.4, color=RED,
                               fill_opacity=0.7, stroke_width=3)
         clash_circle.move_to(position)
@@ -634,11 +690,13 @@ class AnimatePlayPP(Scene):
 
     def create_blocking_dotted_line(self, start_pos, end_pos):
         """NEW: Create a blue dotted line for block assignments"""
+        print("[animate_play_pp] create_blocking_dotted_line called")
         dotted_line = DashedLine(start_pos, end_pos, color=BLUE,
                                  stroke_width=3, dash_length=0.2)
         return dotted_line
 
     def formation_intro(self, players, field, audio_duration):
+        print("[animate_play_pp] Entering formation_intro")
         # REMOVED: pre_snap_movement call
 
         # Get formation data from JSON
@@ -660,7 +718,7 @@ class AnimatePlayPP(Scene):
         if "te_t" in players and len(players["te_t"]) > 0:
             key_players.append(players["te_t"])
 
-        print(f"DEBUG: Highlighting {len(key_players)} players in formation intro")
+        print(f"[animate_play_pp] Highlighting {len(key_players)} players in formation intro")
 
         highlights = VGroup()
         for player in key_players:
@@ -684,10 +742,12 @@ class AnimatePlayPP(Scene):
         )
         formation_details.next_to(formation_text, DOWN)
 
-        start_time = time.time()
+        # --- FIX: replace time.time() with deterministic sum ---
+        total_time = 0.0
 
         # NEW: Pulse the yellow rings instead of player movement
         self.play(FadeIn(highlights, run_time=0.5))
+        total_time += 0.5
 
         # FIXED: Create exactly three pulse cycles for the highlights using AnimationGroup
         pulse_animations = []
@@ -710,11 +770,14 @@ class AnimatePlayPP(Scene):
             Write(formation_details, run_time=1),
             *pulse_animations
         )
+        # duration = max(1, 1, pulse_duration) where pulse_duration = 1 + 0.1*(6-1) = 1.5
+        pulse_duration = 1 + 0.1 * (6 - 1)  # 1.5 seconds
+        total_time += max(1, 1, pulse_duration)  # = 1.5
 
         self.wait(1)  # Additional display time
+        total_time += 1
 
-        elapsed = time.time() - start_time
-        remaining = max(0, audio_duration - elapsed)
+        remaining = max(0, audio_duration - total_time)
         if remaining > 0:
             self.wait(remaining)
 
@@ -723,8 +786,10 @@ class AnimatePlayPP(Scene):
             FadeOut(formation_text, run_time=0.5),
             FadeOut(formation_details, run_time=0.5)
         )
+        print("[animate_play_pp] Exiting formation_intro")
 
     def snap_animation(self, players, audio_duration):
+        print("[animate_play_pp] Entering snap_animation")
         # Play whistle sound during snap
         self.play_whistle_sound()
 
@@ -742,19 +807,25 @@ class AnimatePlayPP(Scene):
         snap_flash = VGroup(snap_circle.copy().set_fill(WHITE, opacity=1),
                             snap_circle.copy().set_fill(WHITE, opacity=0.5))
 
-        start_time = time.time()
+        # --- FIX: deterministic sum ---
+        total_time = 0.0
+
         self.play(
             GrowFromCenter(snap_flash, run_time=0.2),
             MoveAlongPath(players["football"], snap_path, run_time=1)
         )
-        self.play(FadeOut(snap_flash, run_time=0.3))
+        total_time += max(0.2, 1)  # = 1
 
-        elapsed = time.time() - start_time
-        remaining = max(0, audio_duration - elapsed)
+        self.play(FadeOut(snap_flash, run_time=0.3))
+        total_time += 0.3
+
+        remaining = max(0, audio_duration - total_time)
         if remaining > 0:
             self.wait(remaining)
+        print("[animate_play_pp] Exiting snap_animation")
 
     def offensive_line_protection_enhanced(self, players, audio_duration):
+        print("[animate_play_pp] Entering offensive_line_protection_enhanced")
         """Enhanced offensive line protection for run blocking"""
         protection_assignments = self.animation_data["protection"]["assignments"]
         protection_scheme = self.animation_data["protection"]["scheme"]
@@ -767,8 +838,11 @@ class AnimatePlayPP(Scene):
                          font_size=28, color=RED, weight=BOLD)
         prot_text.to_edge(UP)
 
-        start_time = time.time()
+        # --- FIX: deterministic sum ---
+        total_time = 0.0
+
         self.play(Write(prot_text, run_time=0.5))
+        total_time += 0.5
 
         # Get OL route data
         routes = self.animation_data.get("routes", {})
@@ -862,40 +936,42 @@ class AnimatePlayPP(Scene):
                             blocking_dotted_lines.add(dotted_line)
                         else:
                             print(
-                                f"DEBUG: Defender {defender_key} not found for OL {ol_index}")
+                                f"[animate_play_pp] DEBUG: Defender {defender_key} not found for OL {ol_index}")
                     else:
                         print(
-                            f"DEBUG: No defender key found in blocking assignment for OL {ol_index}")
+                            f"[animate_play_pp] DEBUG: No defender key found in blocking assignment for OL {ol_index}")
                 else:
                     print(
-                        f"DEBUG: No blocking assignment found for OL {ol_index}, but will still animate route")
+                        f"[animate_play_pp] DEBUG: No blocking assignment found for OL {ol_index}, but will still animate route")
             else:
-                print(f"DEBUG: No route data found for OL {ol_index}")
+                print(f"[animate_play_pp] DEBUG: No route data found for OL {ol_index}")
 
         # Show all blocking indicators first (only if there are any)
         if len(blocking_indicators) > 0:
             self.play(LaggedStart(*[Create(indicator)
                       for indicator in blocking_indicators], run_time=1))
+            total_time += 1
         else:
-            print("DEBUG: No blocking indicators to show")
+            print("[animate_play_pp] DEBUG: No blocking indicators to show")
 
         # Show dotted lines for block assignments
         if len(blocking_dotted_lines) > 0:
             self.play(LaggedStart(*[Create(line)
                       for line in blocking_dotted_lines], run_time=1))
+            total_time += 1
 
         # Then animate all OL movements simultaneously (only if there are any)
         if ol_animations:
             self.play(LaggedStart(*ol_animations, lag_ratio=0.2), run_time=3)
+            total_time += 3
         else:
-            print("DEBUG: No OL animations to play")
+            print("[animate_play_pp] DEBUG: No OL animations to play")
 
         # NEW: Play tackle sound when blockers reach defenders
         if len(blocking_indicators) > 0:
             self.play_tackle_sound()
 
-        elapsed = time.time() - start_time
-        remaining = max(0, audio_duration - elapsed)
+        remaining = max(0, audio_duration - total_time)
         if remaining > 0:
             self.wait(remaining)
 
@@ -915,8 +991,10 @@ class AnimatePlayPP(Scene):
             fade_outs.append(FadeOut(blocking_dotted_lines, run_time=0.5))
 
         self.play(*fade_outs)
+        print("[animate_play_pp] Exiting offensive_line_protection_enhanced")
 
     def pass_protection_animation(self, players, audio_duration):
+        print("[animate_play_pp] Entering pass_protection_animation")
         """NEW: Pass protection animation - animate all blocking players simultaneously"""
         protection_scheme = self.animation_data["protection"]["scheme"]
 
@@ -927,8 +1005,11 @@ class AnimatePlayPP(Scene):
         prot_text = Text("Pass Protection", font_size=28, color=RED, weight=BOLD)
         prot_text.to_edge(UP)
 
-        start_time = time.time()
+        # --- FIX: deterministic sum ---
+        total_time = 0.0
+
         self.play(Write(prot_text, run_time=0.5))
+        total_time += 0.5
 
         # Get all players with blocking assignments
         routes = self.animation_data.get("routes", {})
@@ -947,7 +1028,7 @@ class AnimatePlayPP(Scene):
                 blocking_players.append((player_key, route_data))
 
         print(
-            f"DEBUG: Found {len(blocking_players)} players with blocking assignments")
+            f"[animate_play_pp] DEBUG: Found {len(blocking_players)} players with blocking assignments")
 
         # Animate all blocking players and their defenders simultaneously
         animations = []
@@ -1039,19 +1120,21 @@ class AnimatePlayPP(Scene):
         if len(all_blocking_dotted_lines) > 0:
             self.play(LaggedStart(*[Create(line)
                       for line in all_blocking_dotted_lines], run_time=1))
+            total_time += 1
 
         # Play all animations simultaneously
         if animations:
             self.play(LaggedStart(*animations, lag_ratio=0.1), run_time=3)
+            total_time += 3
 
         # Show clash effects and play tackle sound
         if clash_effects:
             self.play(LaggedStart(*[GrowFromCenter(effect)
                       for effect in clash_effects], lag_ratio=0.05), run_time=1)
+            total_time += 1
             self.play_tackle_sound()  # NEW: Play tackle sound when clash happens
 
-        elapsed = time.time() - start_time
-        remaining = max(0, audio_duration - elapsed)
+        remaining = max(0, audio_duration - total_time)
         if remaining > 0:
             self.wait(remaining)
 
@@ -1074,12 +1157,14 @@ class AnimatePlayPP(Scene):
             fade_outs.append(FadeOut(all_blocking_dotted_lines, run_time=0.5))
 
         self.play(*fade_outs)
+        print("[animate_play_pp] Exiting pass_protection_animation")
 
     def blocking_assignment_animation(self, players, player_key, audio_duration):
+        print(f"[animate_play_pp] Entering blocking_assignment_animation for {player_key}")
         """Animation for individual blocking assignments - FIXED VERSION"""
         route_data = self.get_route_data(player_key)
         if not route_data or not route_data.get("blocking_assignment"):
-            print(f"DEBUG: No blocking assignment found for {player_key}")
+            print(f"[animate_play_pp] DEBUG: No blocking assignment found for {player_key}")
             return
 
         blocking_assignment = route_data["blocking_assignment"]
@@ -1092,14 +1177,26 @@ class AnimatePlayPP(Scene):
             defender_keys = blocking_assignment["defenders"]
         else:
             print(
-                f"DEBUG: No defenders found in blocking assignment for {player_key}")
+                f"[animate_play_pp] DEBUG: No defenders found in blocking assignment for {player_key}")
             return
 
-        # Get the blocker
-        blocker = players.get(player_key)
-        if not blocker or len(blocker) == 0:
-            print(f"DEBUG: Blocker {player_key} not found")
+        # ---- FIX: Map JSON player key to internal players dict key ----
+        json_to_internal = {
+            "wr_x": "x_wr",
+            "wr_z": "z_wr",
+            "te": "te",
+            "fb": "fb",
+            "rb": "rb",
+            "qb": "qb",
+        }
+        internal_key = json_to_internal.get(player_key, player_key)
+        blocker = players.get(internal_key)
+        if blocker is None or len(blocker) == 0:
+            print(f"[animate_play_pp] DEBUG: Blocker {player_key} (internal: {internal_key}) not found")
+            # Wait full duration to avoid audio overlap
+            self.wait(audio_duration)
             return
+        # ---------------------------------------------------------------
 
         # Get all valid defenders
         defenders = []
@@ -1108,10 +1205,10 @@ class AnimatePlayPP(Scene):
             if defender and len(defender) > 0:
                 defenders.append(defender)
             else:
-                print(f"DEBUG: Defender {defender_key} not found")
+                print(f"[animate_play_pp] DEBUG: Defender {defender_key} not found")
 
         if not defenders:
-            print(f"DEBUG: No valid defenders found for {player_key}")
+            print(f"[animate_play_pp] DEBUG: No valid defenders found for {player_key}")
             return
 
         # Play blocking sound
@@ -1124,10 +1221,13 @@ class AnimatePlayPP(Scene):
                                font_size=24, color=route_data.get("color", "#6A0572"), weight=BOLD)
         assignment_text.to_edge(UP)
 
-        start_time = time.time()
-        self.play(Write(assignment_text, run_time=0.5))
+        # --- FIX: deterministic sum ---
+        total_time = 0.0
 
-        # Calculate blocker's endpoint from route steps FIRST
+        self.play(Write(assignment_text, run_time=0.5))
+        total_time += 0.5
+
+        # Calculate blocker's endpoint from route steps
         start_pos = np.array(blocker.get_center(), dtype=float).copy()
         current_pos = start_pos.copy()
         step_positions = [current_pos.copy()]
@@ -1141,7 +1241,7 @@ class AnimatePlayPP(Scene):
             step_positions.append(new_pos.copy())
             current_pos = new_pos
 
-        endpoint = current_pos.copy()  # DEFINE endpoint HERE
+        endpoint = current_pos.copy()
 
         # Create blocking indicators for each defender and dotted lines
         blocking_indicators = VGroup()
@@ -1150,18 +1250,17 @@ class AnimatePlayPP(Scene):
         for defender in defenders:
             indicator = self.create_blocking_indicator(defender.get_center())
             blocking_indicators.add(indicator)
-
-            # Create blue dotted line from blocker to endpoint (where blocker will meet defender)
-            dotted_line = self.create_blocking_dotted_line(
-                blocker.get_center(), endpoint)
+            # Blue dotted line from blocker to endpoint
+            dotted_line = self.create_blocking_dotted_line(blocker.get_center(), endpoint)
             blocking_dotted_lines.add(dotted_line)
 
         self.play(Create(blocking_indicators, run_time=0.5))
+        total_time += 0.5
 
-        # Show dotted lines
         if len(blocking_dotted_lines) > 0:
             self.play(LaggedStart(*[Create(line)
                       for line in blocking_dotted_lines], run_time=1))
+            total_time += 1
 
         # Create blocker's route path
         if len(step_positions) >= 2:
@@ -1169,47 +1268,80 @@ class AnimatePlayPP(Scene):
                 step_positions, route_data.get("route_style", "sharp"))
             route_path.set_color(route_data.get("color", "#6A0572"))
 
-            # Create protection indicator at end
+            # Protection indicator at end
             protection_indicator = self.create_protection_indicator(step_positions)
 
-            # Create defender paths (direct lines to endpoint)
+            # Defender paths (if requested)
             defender_paths = VGroup()
-            for defender in defenders:
-                defender_path = Line(defender.get_center(),
-                                     endpoint, color="#000080", stroke_width=4)
-                defender_paths.add(defender_path)
+            defender_path_data = blocking_assignment.get("defender_path")
+            draw_defender_path = blocking_assignment.get("draw_defender_path", False)
+            if draw_defender_path and defender_path_data:
+                for defender in defenders:
+                    # Calculate defender's path points from its current position using steps
+                    def_steps = defender_path_data.get("steps", [])
+                    def_start = np.array(defender.get_center(), dtype=float).copy()
+                    def_current = def_start.copy()
+                    def_points = [def_current.copy()]
+                    for step in def_steps:
+                        dx = step.get("right", 0) - step.get("left", 0)
+                        dy = step.get("up", 0) - step.get("down", 0)
+                        new_pos = def_current + \
+                            np.array([dx * self.yard_scale,
+                                     dy * self.yard_scale * 1.5, 0])
+                        def_points.append(new_pos.copy())
+                        def_current = new_pos
+                    # Create path for defender (use same style as blocker or "sharp")
+                    if len(def_points) >= 2:
+                        def_route_style = defender_path_data.get("route_style", "sharp")
+                        def_path = self.create_route_path(def_points, def_route_style)
+                        def_path.set_color("#000080")  # Navy blue for defender
+                        def_path.set_stroke(width=4)
+                        defender_paths.add(def_path)
 
             clash_effects = []
 
-            # Animate simultaneously: blocker along route, defenders along direct path
+            # Animate blocker and defenders
             self.play(Create(route_path, run_time=1))
+            total_time += 1
+
+            # Second play: MoveAlongPath for blocker and LaggedStart for defenders
+            move_path_duration = 2
+            defender_count = len(defenders)
+            if defender_count > 1:
+                lagged_duration = 2 + 0.1 * (defender_count - 1) * 2
+            else:
+                lagged_duration = 2
+            play2_duration = max(move_path_duration, lagged_duration)
+
             self.play(
                 MoveAlongPath(blocker, route_path, run_time=2),
-                LaggedStart(*[MoveAlongPath(defender, path, run_time=2)
-                            for defender, path in zip(defenders, defender_paths)], lag_ratio=0.1),
+                LaggedStart(*[MoveAlongPath(defender, Line(defender.get_center(), endpoint, color="#000080", stroke_width=4))
+                            for defender in defenders], lag_ratio=0.1),
             )
-            self.play(Create(protection_indicator, run_time=0.3))
+            total_time += play2_duration
 
-            # Create clash effect at endpoint and play tackle sound
+            self.play(Create(protection_indicator, run_time=0.3))
+            total_time += 0.3
+
+            # Clash effect and tackle sound
             clash_effect = self.create_clash_effect(endpoint)
             clash_effects.append(clash_effect)
             if clash_effects:
                 self.play(LaggedStart(*[GrowFromCenter(effect)
                           for effect in clash_effects], lag_ratio=0.05), run_time=1)
-                self.play_tackle_sound()  # Play tackle sound when clash happens
+                total_time += 1
+                self.play_tackle_sound()
 
-        elapsed = time.time() - start_time
-        remaining = max(0, audio_duration - elapsed)
+        remaining = max(0, audio_duration - total_time)
         if remaining > 0:
             self.wait(remaining)
 
-        # Clean up ALL elements
+        # Clean up all elements
         fade_outs = [
             FadeOut(assignment_text, run_time=0.5),
             FadeOut(blocking_indicators, run_time=0.5)
         ]
 
-        # Add fade out for route elements if they were created
         if 'route_path' in locals():
             fade_outs.append(FadeOut(route_path, run_time=0.5))
 
@@ -1226,8 +1358,10 @@ class AnimatePlayPP(Scene):
             fade_outs.append(FadeOut(blocking_dotted_lines, run_time=0.5))
 
         self.play(*fade_outs)
+        print(f"[animate_play_pp] Exiting blocking_assignment_animation for {player_key}")
 
     def player_route_animation(self, players, segment_name, audio_duration):
+        print(f"[animate_play_pp] Entering player_route_animation for {segment_name}")
         # NEW: Extract player position by reading from the right side
         if segment_name.endswith('_route'):
             # Remove '_route' from the end to get player position
@@ -1236,7 +1370,7 @@ class AnimatePlayPP(Scene):
             # If it doesn't end with '_route', use the segment name as-is
             player_pos = segment_name
         print(
-            f"DEBUG: Processing route for player: '{player_pos}', segment: '{segment_name}'")
+            f"[animate_play_pp] DEBUG: Processing route for player: '{player_pos}', segment: '{segment_name}'")
 
         # Get the player object - FIXED: Proper handling of all player types
         if player_pos == "te":
@@ -1259,21 +1393,21 @@ class AnimatePlayPP(Scene):
                 player = players["fb"]
                 route_data = self.animation_data["routes"]["fb"]
                 print(
-                    f"DEBUG: Found FB player with route data: {route_data.get('label', 'No label')}")
+                    f"[animate_play_pp] DEBUG: Found FB player with route data: {route_data.get('label', 'No label')}")
             else:
-                print("DEBUG: FB player not found")
+                print("[animate_play_pp] DEBUG: FB player not found")
                 return
         elif player_pos == "te_t":
             if "te_t" in players and len(players["te_t"]) > 0:
                 player = players["te_t"]
                 route_data = self.animation_data["routes"]["te_t"]
                 print(
-                    f"DEBUG: Found TE_T player with route data: {route_data.get('label', 'No label')}")
+                    f"[animate_play_pp] DEBUG: Found TE_T player with route data: {route_data.get('label', 'No label')}")
             else:
-                print("DEBUG: TE_T player not found")
+                print("[animate_play_pp] DEBUG: TE_T player not found")
                 return
         else:
-            print(f"DEBUG: Unknown player position: {player_pos}")
+            print(f"[animate_play_pp] DEBUG: Unknown player position: {player_pos}")
             return
 
         # FIXED: Play protection sound for ALL route types that are protection, not just WR routes
@@ -1281,7 +1415,7 @@ class AnimatePlayPP(Scene):
         if route_type == "protection":
             self.play_protection_sound()
             print(
-                f"DEBUG: Playing protection sound for {player_pos} (route type: {route_type})")
+                f"[animate_play_pp] DEBUG: Playing protection sound for {player_pos} (route type: {route_type})")
         elif route_type in ["square_in", "post", "flag", "flat", "corner", "drag", "panther", "spot"]:
             self.play_chase_sound()
         elif route_type == "route":  # Run routes
@@ -1529,21 +1663,19 @@ class AnimatePlayPP(Scene):
                             secondary_markers.add(s_arrow)
 
         # Start route animation
-        start_time = time.time()
-
         # Show route label first
         self.play(Write(route_label, run_time=0.5))
 
         # DEBUG: Print what we found
         print(
-            f"DEBUG: Found {len(curved_segments)} curved segments and {len(individual_segments)} individual segments")
+            f"[animate_play_pp] DEBUG: Found {len(curved_segments)} curved segments and {len(individual_segments)} individual segments")
 
         # FIXED: IMPROVED ANIMATION - Handle curved segments and individual segments separately
         # First animate curved segments (if any)
         if curved_segments:
             for curved_seg in curved_segments:
                 print(
-                    f"DEBUG: Animating curved segment from {curved_seg['start_idx']} to {curved_seg['end_idx']}")
+                    f"[animate_play_pp] DEBUG: Animating curved segment from {curved_seg['start_idx']} to {curved_seg['end_idx']}")
                 # Draw the curved path
                 self.play(Create(curved_seg['path'], run_time=0.7))
 
@@ -1585,9 +1717,20 @@ class AnimatePlayPP(Scene):
             else:
                 self.play(GrowFromCenter(route_end_marker, run_time=0.3))
 
-        elapsed = time.time() - start_time
+        # --- FIX: replace time.time() with deterministic calculation ---
+        # Compute total animation time based on run_times used above
+        animation_elapsed = 0.5  # Write(route_label)
+        if curved_segments:
+            animation_elapsed += len(curved_segments) * (0.7 + 2.0)  # Create + MoveAlongPath per curved seg
+        if individual_segments:
+            animation_elapsed += len(individual_segments) * (segment_draw_time + segment_move_time)
+        if secondary_paths:
+            animation_elapsed += 0.5
+            if secondary_markers:
+                animation_elapsed += 0.3
+        if route_end_marker:
+            animation_elapsed += 0.3
 
-        # NEW: Wait for original audio duration + 0.5 seconds before playing video
         # Find the segment to get original_audio_duration
         original_audio_duration = 0
         for segment in self.audio_durations['segments']:
@@ -1596,21 +1739,18 @@ class AnimatePlayPP(Scene):
                 break
 
         if original_audio_duration > 0:
-            # Calculate how much time we need to wait for the original audio to finish
-            time_to_wait = original_audio_duration - elapsed
+            time_to_wait = max(0, original_audio_duration - animation_elapsed)
             if time_to_wait > 0:
                 self.wait(time_to_wait)
 
-            # Wait additional 0.5 seconds
             self.wait(0.5)
 
-            # Calculate remaining time for video
-            video_remaining = audio_duration - (elapsed + time_to_wait + 0.5)
+            video_remaining = max(0, audio_duration - (animation_elapsed + time_to_wait + 0.5))
         else:
             # Fallback to old method if no original_audio_duration
             self.wait(2)
-            elapsed += 2
-            video_remaining = max(0, audio_duration - elapsed)
+            animation_elapsed += 2
+            video_remaining = max(0, audio_duration - animation_elapsed)
 
         # Play side video if available and we have remaining time
         if video_remaining > 0 and "type" in route_data:
@@ -1661,11 +1801,11 @@ class AnimatePlayPP(Scene):
                     self.wait(video_remaining)
                     self.remove(route_video)
                 except Exception as e:
-                    print(f"Error loading video: {e}")
+                    print(f"[animate_play_pp] Error loading video: {e}")
                     if video_remaining > 0:
                         self.wait(video_remaining)
             else:
-                print(f"Video file not found: {video_path}")
+                print(f"[animate_play_pp] Video file not found: {video_path}")
                 if video_remaining > 0:
                     self.wait(video_remaining)
 
@@ -1688,16 +1828,20 @@ class AnimatePlayPP(Scene):
             fade_outs.append(FadeOut(secondary_markers, run_time=0.5))
 
         self.play(*fade_outs)
+        print(f"[animate_play_pp] Exiting player_route_animation for {segment_name}")
 
     def qb_dropback_animation(self, players, audio_duration):
+        print("[animate_play_pp] Entering qb_dropback_animation")
         """NEW: Simple QB dropback animation for pass protection plays"""
-        start_time = time.time()
+        # --- FIX: deterministic sum ---
+        total_time = 0.0
 
         # Create dropback text
         dropback_text = Text("QB Dropback", font_size=28, color=BLUE, weight=BOLD)
         dropback_text.to_edge(UP)
 
         self.play(Write(dropback_text, run_time=0.5))
+        total_time += 0.5
 
         # Get QB and football
         qb = players["qb"]
@@ -1717,13 +1861,15 @@ class AnimatePlayPP(Scene):
 
         # Animate QB dropback
         self.play(Create(dropback_path, run_time=1))
+        total_time += 1
+
         self.play(
             MoveAlongPath(qb, dropback_path, run_time=2),
             MoveAlongPath(football, dropback_path, run_time=2)
         )
+        total_time += max(2, 2)  # = 2
 
-        elapsed = time.time() - start_time
-        remaining = max(0, audio_duration - elapsed)
+        remaining = max(0, audio_duration - total_time)
         if remaining > 0:
             self.wait(remaining)
 
@@ -1731,8 +1877,10 @@ class AnimatePlayPP(Scene):
             FadeOut(dropback_text, run_time=0.5),
             FadeOut(dropback_path, run_time=0.5)
         )
+        print("[animate_play_pp] Exiting qb_dropback_animation")
 
     def qb_read_animation(self, players, segment_name, audio_duration):
+        print(f"[animate_play_pp] Entering qb_read_animation for {segment_name}")
         # FIXED: Use direct mapping from segment name to read progression
         # Create a mapping from segment name suffix to player position
         read_target_mapping = {
@@ -1748,7 +1896,7 @@ class AnimatePlayPP(Scene):
         player_pos = read_target_mapping.get(read_target)
 
         if not player_pos:
-            print(f"DEBUG: Unknown read target: {read_target}")
+            print(f"[animate_play_pp] DEBUG: Unknown read target: {read_target}")
             return
 
         # Find the corresponding read in progression
@@ -1761,7 +1909,7 @@ class AnimatePlayPP(Scene):
                 break
 
         if not target_read:
-            print(f"DEBUG: No read progression found for player: {player_pos}")
+            print(f"[animate_play_pp] DEBUG: No read progression found for player: {player_pos}")
             return
 
         # Map JSON player keys to players dictionary keys - ROBUST HANDLING
@@ -1777,7 +1925,7 @@ class AnimatePlayPP(Scene):
 
         if player_key not in players or len(players[player_key]) == 0:
             print(
-                f"DEBUG: Player key '{player_key}' not found in players dictionary")
+                f"[animate_play_pp] DEBUG: Player key '{player_key}' not found in players dictionary")
             return
 
         target = players[player_key]
@@ -1802,7 +1950,10 @@ class AnimatePlayPP(Scene):
         circle = Circle(radius=target[0].radius *
                         1.2, color=color, stroke_width=4)
         circle.move_to(target.get_center())
-        start_time = time.time()
+
+        # --- FIX: deterministic sum ---
+        total_time = 0.0
+
         # Add QB Reads heading
         qb_reads_text = Text("QB Reads", font_size=32, color=WHITE, weight=BOLD)
         qb_reads_text.to_edge(UP)
@@ -1814,21 +1965,25 @@ class AnimatePlayPP(Scene):
             Create(qb_range, run_time=0.3),
             Create(circle, run_time=0.3)
         )
+        total_time += max(0.3, 0.3, 0.3, 0.3)  # = 0.3
+
         # ENHANCED: Faster pulsing effect
         self.play(
             circle.animate.scale(1.2).set_stroke(opacity=0.8),
             run_time=0.3
         )
+        total_time += 0.3
+
         self.play(
             circle.animate.scale(1/1.2).set_stroke(opacity=1),
             run_time=0.3
         )
-        elapsed = time.time() - start_time
-        # ENHANCED: More accurate timing calculation
-        remaining = max(0, audio_duration - elapsed)
-        # ENHANCED: Add visual indication if we need to wait
+        total_time += 0.3
+
+        remaining = max(0, audio_duration - total_time)
         if remaining > 0:
             self.wait(remaining)
+
         # ENHANCED: Faster fade out
         self.play(
             FadeOut(arrow, run_time=0.2),
@@ -1836,8 +1991,10 @@ class AnimatePlayPP(Scene):
             FadeOut(circle, run_time=0.2),
             FadeOut(qb_reads_text, run_time=0.2)  # FIX: Also fade out the QB Reads text
         )
+        print(f"[animate_play_pp] Exiting qb_read_animation for {segment_name}")
 
     def run_options_animation(self, players, option_type, audio_duration):
+        print(f"[animate_play_pp] Entering run_options_animation for {option_type}")
         """Animation for run options (primary run lanes) - FIXED VERSION"""
         run_lanes = self.animation_data.get("run_lanes", {})
 
@@ -1895,7 +2052,8 @@ class AnimatePlayPP(Scene):
         option_text = Text(label, font_size=26, color=color, weight=BOLD)
         option_text.to_edge(UP)
 
-        start_time = time.time()
+        # --- FIX: deterministic sum ---
+        total_time = 0.0
 
         # FIXED: Check if there are circles before creating LaggedStart
         animations = []
@@ -1915,6 +2073,7 @@ class AnimatePlayPP(Scene):
         # Play animations if we have any
         if animations:
             self.play(*animations)
+            total_time += max(0.7, 0.7, 0.7)  # all have run_time=0.7, so max=0.7
 
         # ENHANCED: Faster pulsing - only if we have circles
         if len(circles) > 0:
@@ -1923,16 +2082,15 @@ class AnimatePlayPP(Scene):
                 dashed_lines.animate.set_stroke(opacity=0.8),  # Also pulse dashed lines
                 run_time=0.3
             )
+            total_time += 0.3
             self.play(
                 circles.animate.scale(1/1.1).set_stroke(opacity=0.9).set_fill(opacity=0.2),
                 dashed_lines.animate.set_stroke(opacity=1.0),  # Reset dashed lines opacity
                 run_time=0.3
             )
+            total_time += 0.3
 
-        elapsed = time.time() - start_time
-
-        # ENHANCED: More accurate timing
-        remaining = max(0, audio_duration - elapsed)
+        remaining = max(0, audio_duration - total_time)
         if remaining > 0:
             self.wait(remaining)
 
@@ -1944,16 +2102,20 @@ class AnimatePlayPP(Scene):
             fade_outs.append(FadeOut(dashed_lines, run_time=0.3))
 
         self.play(*fade_outs)
+        print(f"[animate_play_pp] Exiting run_options_animation for {option_type}")
 
     def handoff_animation(self, players, audio_duration):
+        print("[animate_play_pp] Entering handoff_animation")
         """Animation for QB to RB handoff in run plays"""
-        start_time = time.time()
+        # --- FIX: deterministic sum ---
+        total_time = 0.0
 
         # Create handoff text
         handoff_text = Text("QB-RB Handoff", font_size=28, color=GREEN, weight=BOLD)
         handoff_text.to_edge(UP)
 
         self.play(Write(handoff_text, run_time=0.5))
+        total_time += 0.5
 
         # Get QB and RB positions
         qb = players["qb"]
@@ -1973,16 +2135,18 @@ class AnimatePlayPP(Scene):
             Create(handoff_path, run_time=1),
             MoveAlongPath(football, handoff_path, run_time=1.5)
         )
+        total_time += max(1, 1.5)  # = 1.5
 
         # Show RB with possession (highlight)
         rb_highlight = Circle(radius=rb[0].radius*1.3, color=GREEN, stroke_width=4)
         rb_highlight.move_to(rb.get_center())
 
         self.play(Create(rb_highlight, run_time=0.3))
+        total_time += 0.3
         self.play(FadeOut(rb_highlight, run_time=0.3))
+        total_time += 0.3
 
-        elapsed = time.time() - start_time
-        remaining = max(0, audio_duration - elapsed)
+        remaining = max(0, audio_duration - total_time)
         if remaining > 0:
             self.wait(remaining)
 
@@ -1990,8 +2154,10 @@ class AnimatePlayPP(Scene):
             FadeOut(handoff_text, run_time=0.5),
             FadeOut(handoff_path, run_time=0.5)
         )
+        print("[animate_play_pp] Exiting handoff_animation")
 
     def passing_options_animation(self, players, segment_name, audio_duration):
+        print(f"[animate_play_pp] Entering passing_options_animation for {segment_name}")
         """Animation for passing options - FIXED VERSION"""
         passing_options = self.animation_data.get("passing_options", {})
 
@@ -2059,7 +2225,8 @@ class AnimatePlayPP(Scene):
         option_text = Text(label, font_size=26, color=color, weight=BOLD)
         option_text.to_edge(UP)
 
-        start_time = time.time()
+        # --- FIX: deterministic sum ---
+        total_time = 0.0
 
         # FIXED: Check if there are circles before creating LaggedStart
         animations = []
@@ -2079,6 +2246,7 @@ class AnimatePlayPP(Scene):
         # Play animations if we have any
         if animations:
             self.play(*animations)
+            total_time += max(0.7, 0.7, 0.7)  # all have run_time=0.7, so max=0.7
 
         # ENHANCED: Faster pulsing - only if we have circles
         if len(circles) > 0:
@@ -2087,16 +2255,15 @@ class AnimatePlayPP(Scene):
                 dashed_lines.animate.set_stroke(opacity=0.8),  # Also pulse dashed lines
                 run_time=0.3
             )
+            total_time += 0.3
             self.play(
                 circles.animate.scale(1/1.1).set_stroke(opacity=0.9).set_fill(opacity=0.2),
                 dashed_lines.animate.set_stroke(opacity=1.0),  # Reset dashed lines opacity
                 run_time=0.3
             )
+            total_time += 0.3
 
-        elapsed = time.time() - start_time
-
-        # ENHANCED: More accurate timing
-        remaining = max(0, audio_duration - elapsed)
+        remaining = max(0, audio_duration - total_time)
         if remaining > 0:
             self.wait(remaining)
 
@@ -2108,3 +2275,4 @@ class AnimatePlayPP(Scene):
             fade_outs.append(FadeOut(dashed_lines, run_time=0.3))
 
         self.play(*fade_outs)
+        print(f"[animate_play_pp] Exiting passing_options_animation for {segment_name}")

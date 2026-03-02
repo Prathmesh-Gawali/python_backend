@@ -162,27 +162,39 @@ def get_mp3_duration_estimate(mp3_path):
 
 
 def update_audio_durations(audio_script, audio_dir, audio_script_path):
-    """Update audio_script.json with accurate durations measured from generated MP3 files."""
-    for segment in tqdm(audio_script['segments'], desc="Updating audio durations"):
+    """Update audio_script.json with accurate durations + HEAVY DEBUG"""
+    print("\n" + "="*60)
+    print("DEBUG: ENTERING update_audio_durations")
+    print(f"Target file: {audio_script_path.absolute()}")
+    print(f"File exists before write: {audio_script_path.exists()}")
+    
+    for segment in tqdm(audio_script['segments'], desc="Updating durations"):
         audio_path = audio_dir / f"{segment['name']}.mp3"
         if audio_path.exists():
             try:
                 duration = get_mp3_duration_ffprobe(audio_path)
                 segment['duration'] = round(duration, 2)
-                print(
-                    f"Set accurate duration for {segment['name']}: "
-                    f"{segment['duration']}s "
-                    f"(original: {segment.get('original_audio_duration', 'N/A')})"
-                )
+                print(f"✓ {segment['name']:20} → duration={segment['duration']}s  "
+                      f"(orig={segment.get('original_audio_duration','N/A')})")
             except Exception as e:
-                print(f"Warning: Could not read audio file {audio_path}: {e}")
+                print(f"✗ Failed to read {audio_path}: {e}")
                 segment['duration'] = estimate_duration_from_text(segment['text'])
         else:
-            print(f"Warning: Audio file {audio_path} does not exist – using fallback.")
+            print(f"⚠ Audio file missing: {audio_path}")
             segment['duration'] = estimate_duration_from_text(segment['text'])
 
-    with open(audio_script_path, 'w') as f:
-        json.dump(audio_script, f, indent=2)
+    # FORCE WRITE WITH ERROR HANDLING
+    try:
+        with open(audio_script_path, 'w', encoding='utf-8') as f:
+            json.dump(audio_script, f, indent=2, ensure_ascii=False)
+        print(f"\nSUCCESS: Wrote updated audio_script.json with {len(audio_script['segments'])} segments")
+        print(f"File size after write: {audio_script_path.stat().st_size} bytes")
+    except Exception as e:
+        print(f"CRITICAL WRITE ERROR: {e}")
+        import traceback
+        traceback.print_exc()
+
+    print("="*60)
 
 
 def estimate_duration_from_text(text):
